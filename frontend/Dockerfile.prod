@@ -1,0 +1,22 @@
+# build environment
+
+# pull official base image
+FROM node:13.12.0-alpine as build
+
+# set working directory
+WORKDIR /app
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
+
+# install app dependencies in clean mode
+COPY package.json package-lock.json ./
+RUN npm ci --silent
+
+# copy app files, dev version shares a volume
+COPY . ./
+
+# build app
+RUN npm run build
+
+CMD ["echo", "'Client app built successfully and saved to /app/build'"]

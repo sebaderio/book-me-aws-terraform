@@ -1,0 +1,110 @@
+# Parameters under each service should be sorted alphabetically.
+
+version: '3.9'
+
+services:
+  api:
+    build: 
+      context: ./api
+      target: production
+    command: sh -c "daphne --access-log /var/log/api/daphne/access.log --bind 0.0.0.0 core.asgi:application && python manage.py runworker -v2"
+    depends_on:
+      - celery
+    env_file:
+      - env_vars/.env_api
+    restart: always
+    volumes:
+      - ./persistent_data/log/api/daphne:/var/log/api/daphne
+      - ./persistent_data/log/api/django:/var/log/api/django
+      - ./persistent_data/media:/var/lib/media
+      - ./persistent_data/static:/var/lib/static
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    depends_on:
+      - api
+    env_file:
+      - env_vars/.env_frontend
+    restart: 'no'
+    volumes:
+      - client-app:/app/build
+
+  db:
+    env_file:
+      - env_vars/.env_db
+    image: postgres:14.5
+    restart: always
+    volumes:
+      - ./persistent_data/pg_data:/var/lib/postgresql/data
+
+  celery:
+    build: 
+      context: ./api
+      target: production
+    command: celery --app tasks worker --loglevel WARNING
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - env_vars/.env_api
+    restart: always
+    volumes:
+      - ./persistent_data/log/api/celery:/var/log/api/celery
+      - ./persistent_data/media:/var/lib/media
+      - ./persistent_data/static:/var/lib/static
+
+  redis:
+    image: redis:6.2-buster
+    restart: always
+
+  grafana:
+    depends_on: 
+      - prometheus
+    image: grafana/grafana:8.3.6
+    volumes: 
+      - ./persistent_data/grafana:/var/lib/grafana
+
+  prometheus:
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/data'
+    image: prom/prometheus:v2.33.1
+    volumes:
+      - ./persistent_data/prometheus:/data
+      - ./prometheus/:/etc/prometheus
+
+  proxy:
+    build:
+      context: ./proxy
+    depends_on:
+      - frontend
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - ./persistent_data/log/nginx:/var/log/nginx
+      - certbot-certs:/etc/letsencrypt
+      - certbot-web:/vol/www
+      - client-app:/vol/html
+      - proxy-dhparams:/vol/proxy
+
+  certbot:
+    build:
+      context: ./certbot
+    command: echo "Skipping..."
+    depends_on:
+      - proxy
+    env_file:
+      - env_vars/.env_certbot
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - certbot-web:/vol/www
+
+volumes:
+  certbot-certs:
+  certbot-web:
+  client-app:
+  proxy-dhparams:

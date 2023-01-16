@@ -1,0 +1,20 @@
+{
+  "short_name": "BookMe",
+  "name": "Book Barber Service or Place Your Offer",
+  "icons": [
+    {
+      "src": "media/bookme_200.png",
+      "type": "image/png",
+      "sizes": "200x200"
+    },
+    {
+      "src": "media/bookme_200_white.png",
+      "type": "image/png",
+      "sizes": "200x200"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
