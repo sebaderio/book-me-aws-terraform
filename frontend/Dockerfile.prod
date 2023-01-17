@@ -19,4 +19,6 @@ COPY . ./
 # build app
 RUN npm run build
 
+# When running the container you can specify the volume path mapping for the /app/build
+# folder to take the generated, static app out from the container.
 CMD ["echo", "'Client app built successfully and saved to /app/build'"]

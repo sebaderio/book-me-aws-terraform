@@ -27,7 +27,8 @@ urlpatterns = [
     path('auth/', include('authentication.urls')),
     path('barber/', include('barber.urls')),
     path('customer/', include('customer.urls')),
-    path('', include('django_prometheus.urls')),
+    # Disabled to not share metrics publicly. Prometheus metrics middleware still applied in the code.
+    # path('', include('django_prometheus.urls')),
 ]
 
 # Future reference, serving static files via web server:
