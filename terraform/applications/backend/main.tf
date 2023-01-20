@@ -20,8 +20,9 @@ module "vpc" {
   database_subnets    = var.vpc_database_subnets
   elasticache_subnets = var.vpc_elasticache_subnets
 
-  create_database_subnet_group    = true
-  create_elasticache_subnet_group = true
+  create_database_subnet_group = true
+  # Subnet group is created in the redis module, but subnets are created in this module.
+  create_elasticache_subnet_group = false
 
   # Default NACL, RT and SG configured through the AWS VPC terraform module are a bit different
   # than the NACL, RT and SG configured automatically by AWC when creating the VPC.
@@ -71,107 +72,138 @@ module "vpc" {
 # Postgres RDS
 ################################################################################
 
-module "db" {
-  source  = "terraform-aws-modules/rds/aws"
-  version = "~> 5.2.3"
+# module "db" {
+#   source  = "terraform-aws-modules/rds/aws"
+#   version = "~> 5.2.3"
 
-  identifier = var.rds_db_id
+#   identifier = var.rds_db_id
 
-  # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
-  engine               = "postgres"
-  engine_version       = "14"
-  family               = "postgres14" # DB parameter group
-  major_engine_version = "14"         # DB option group
-  instance_class       = "db.t4g.micro"
+#   # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
+#   engine               = "postgres"
+#   engine_version       = "14"
+#   family               = "postgres14" # DB parameter group
+#   major_engine_version = "14"         # DB option group
+#   instance_class       = "db.t4g.micro"
 
-  allocated_storage     = 5
-  max_allocated_storage = 20
+#   allocated_storage     = 5
+#   max_allocated_storage = 20
 
-  # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
-  # "Error creating DB Instance: InvalidParameterValue: MasterUsername
-  # user cannot be used as it is a reserved word used by the engine"
-  db_name  = var.rds_db_name
-  username = var.rds_db_username
-  # By default random password is generated for the master user.
-  port = var.rds_db_port
+#   # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
+#   # "Error creating DB Instance: InvalidParameterValue: MasterUsername
+#   # user cannot be used as it is a reserved word used by the engine"
+#   db_name  = var.rds_db_name
+#   username = var.rds_db_username
+#   # By default random password is generated for the master user.
+#   port = var.rds_db_port
 
-  db_subnet_group_name   = module.vpc.database_subnet_group
-  vpc_security_group_ids = [module.db_security_group.security_group_id]
+#   db_subnet_group_name   = module.vpc.database_subnet_group
+#   vpc_security_group_ids = [module.db_security_group.security_group_id]
 
-  maintenance_window              = "Mon:00:00-Mon:03:00"
-  backup_window                   = "03:00-06:00"
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-  create_cloudwatch_log_group     = true
+#   maintenance_window              = "Mon:00:00-Mon:03:00"
+#   backup_window                   = "03:00-06:00"
+#   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+#   create_cloudwatch_log_group     = true
 
-  backup_retention_period = 1
-  skip_final_snapshot     = true
-  deletion_protection     = false
+#   backup_retention_period = 1
+#   skip_final_snapshot     = true
+#   deletion_protection     = false
 
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
-  create_monitoring_role                = true
-  monitoring_interval                   = 60
-  monitoring_role_name                  = "${var.rds_db_id}-rds-role"
-  monitoring_role_use_name_prefix       = true
+#   performance_insights_enabled          = true
+#   performance_insights_retention_period = 7
+#   create_monitoring_role                = true
+#   monitoring_interval                   = 60
+#   monitoring_role_name                  = "${var.rds_db_id}-rds-role"
+#   monitoring_role_use_name_prefix       = true
 
-  parameters = [
-    {
-      name  = "autovacuum"
-      value = 1
-    },
-    {
-      name  = "client_encoding"
-      value = "utf8"
-    }
-  ]
+#   parameters = [
+#     {
+#       name  = "autovacuum"
+#       value = 1
+#     },
+#     {
+#       name  = "client_encoding"
+#       value = "utf8"
+#     }
+#   ]
+# }
+
+# module "db_security_group" {
+#   source  = "terraform-aws-modules/security-group/aws"
+#   version = "~> 4.17.1"
+
+#   name        = "${var.rds_db_id}-rds"
+#   description = "PostgreSQL security group"
+#   vpc_id      = module.vpc.vpc_id
+
+#   # ingress
+#   ingress_with_cidr_blocks = [
+#     {
+#       from_port   = var.rds_db_port
+#       to_port     = var.rds_db_port
+#       protocol    = "tcp"
+#       description = "PostgreSQL access from within VPC"
+#       cidr_blocks = module.vpc.vpc_cidr_block
+#     },
+#   ]
+# }
+
+
+################################################################################
+# Elasticache Redis
+################################################################################
+
+module "redis" {
+  source  = "umotif-public/elasticache-redis/aws"
+  version = "~> 3.2.0"
+
+  name_prefix        = var.redis_db_id
+  num_cache_clusters = 1
+  node_type          = "cache.t3.micro"
+  engine_version     = "7.0"
+  family             = "redis7"
+
+  maintenance_window       = "mon:00:00-mon:02:00"
+  snapshot_window          = "02:00-04:00"
+  snapshot_retention_limit = 7
+
+  apply_immediately          = true
+  automatic_failover_enabled = false
+
+  at_rest_encryption_enabled = false
+  transit_encryption_enabled = false
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.elasticache_subnets
+
+  allowed_security_groups = [module.vpc.default_security_group_id]
+  ingress_cidr_blocks     = [module.vpc.vpc_cidr_block]
 }
 
-module "db_security_group" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.17.1"
-
-  name        = "${var.rds_db_id}-rds"
-  description = "PostgreSQL security group"
-  vpc_id      = module.vpc.vpc_id
-
-  # ingress
-  ingress_with_cidr_blocks = [
-    {
-      from_port   = var.rds_db_port
-      to_port     = var.rds_db_port
-      protocol    = "tcp"
-      description = "PostgreSQL access from within VPC"
-      cidr_blocks = module.vpc.vpc_cidr_block
-    },
-  ]
-}
-
-
-# ################################################################################
-# # Elasticache Redis
-# ################################################################################
 
 # module "redis" {
-#   source = "cloudposse/elasticache-redis/aws"
+#   source  = "cloudposse/elasticache-redis/aws"
 #   version = "~> 0.49.0"
 
-#   name = var.redis_db_id
-#   vpc_id                           = module.vpc.vpc_id
-#   allowed_security_group_ids       = [module.vpc.default_security_group_id]
-#   elasticache_subnet_group_name    = module.vpc.elasticache_subnet_group
-#   cluster_size                     = 1
-#   instance_type                    = "cache.t3.micro"
-#   engine_version                   = "7.0"
-#   family                           = "redis7"
-#   transit_encryption_enabled       = false
+#   name                          = var.redis_db_id
+#   vpc_id                        = module.vpc.vpc_id
+#   allowed_security_group_ids    = [module.vpc.default_security_group_id]
+#   # elasticache_subnet_group_name = module.vpc.elasticache_subnet_group
+#   subnets                       = var.vpc_elasticache_subnets
+#   cluster_size                  = 1
+#   instance_type                 = "cache.t3.micro"
+#   engine_version                = "7.0"
+#   family                        = "redis7"
+#   transit_encryption_enabled    = false
 
 #   # Verify that we can safely change security groups (name changes forces new SG)
 #   security_group_create_before_destroy = true
-#   security_group_delete_timeout = "5m"
+#   security_group_delete_timeout        = "5m"
 #   # This module creates the security group with all required permissions automatically. 
-#   security_group_name                  = ["${var.redis_db_id}-cache"]
+#   security_group_name = ["${var.redis_db_id}-cache"]
 
 #   context = module.this.context
+
+#   depends_on = [module.vpc.elasticache_subnet_group]
 # }
 
 
