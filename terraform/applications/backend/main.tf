@@ -8,31 +8,41 @@ provider "aws" {
 ################################################################################
 
 module "vpc" {
-  source = "terraform-aws-modules/vpc/aws"
+  source  = "terraform-aws-modules/vpc/aws"
   version = "~> 3.19.0"
 
   name = var.vpc_name
   cidr = var.vpc_cidr
 
-  azs             = var.vpc_azs
-  private_subnets = var.vpc_private_subnets
-  public_subnets  = var.vpc_public_subnets
+  azs                 = var.vpc_azs
+  private_subnets     = var.vpc_private_subnets
+  public_subnets      = var.vpc_public_subnets
   database_subnets    = var.vpc_database_subnets
   elasticache_subnets = var.vpc_elasticache_subnets
 
-  create_database_subnet_group = true
+  create_database_subnet_group    = true
   create_elasticache_subnet_group = true
 
+  # Default NACL, RT and SG configured through the AWS VPC terraform module are a bit different
+  # than the NACL, RT and SG configured automatically by AWC when creating the VPC.
+  # Resources created with the terraform module are an improved version of the AWS created ones. Just use it.
+
+  # Default NACL allows all the inbound and outbound traffic.
+  # Subnets not having the dedicated NACL configured are associated with the default NACL.
   manage_default_network_acl = true
   default_network_acl_tags   = { Name = "${var.vpc_name}-default" }
 
+  # Default RT have only a rule allowing the traffic within the VPC.
+  # According to the docs, subnets not having the route table association are associated with the default RT.
   manage_default_route_table = true
   default_route_table_tags   = { Name = "${var.vpc_name}-default" }
 
+  # If you don't specify a security group when you launch an instance, the instance is automatically
+  # associated with the default security group for the VPC.
+  # This default SG does not have inbound and outbound rules configured. All the traffic is blocked.
   manage_default_security_group = true
   default_security_group_tags   = { Name = "${var.vpc_name}-default" }
 
-  # TODO: TBD if it is needed at all in this case.
   enable_dns_hostnames = true
   enable_dns_support   = true
 
@@ -62,7 +72,7 @@ module "vpc" {
 ################################################################################
 
 module "db" {
-  source = "terraform-aws-modules/rds/aws"
+  source  = "terraform-aws-modules/rds/aws"
   version = "~> 5.2.3"
 
   identifier = var.rds_db_id
@@ -83,7 +93,7 @@ module "db" {
   db_name  = var.rds_db_name
   username = var.rds_db_username
   # By default random password is generated for the master user.
-  port     = var.rds_db_port
+  port = var.rds_db_port
 
   db_subnet_group_name   = module.vpc.database_subnet_group
   vpc_security_group_ids = [module.db_security_group.security_group_id]
@@ -137,35 +147,49 @@ module "db_security_group" {
 }
 
 
-################################################################################
-# Elasticache Redis
-################################################################################
+# ################################################################################
+# # Elasticache Redis
+# ################################################################################
 
-module "redis" {
-  source = "cloudposse/elasticache-redis/aws"
-  version = "~> 0.49.0"
+# module "redis" {
+#   source = "cloudposse/elasticache-redis/aws"
+#   version = "~> 0.49.0"
 
-  name = var.redis_db_id
-  vpc_id                           = module.vpc.vpc_id
-  allowed_security_group_ids       = [module.vpc.default_security_group_id]
-  elasticache_subnet_group_name    = module.vpc.elasticache_subnet_group
-  cluster_size                     = 1
-  instance_type                    = "cache.t3.micro"
-  engine_version                   = "7.0"
-  family                           = "redis7"
-  transit_encryption_enabled       = false
+#   name = var.redis_db_id
+#   vpc_id                           = module.vpc.vpc_id
+#   allowed_security_group_ids       = [module.vpc.default_security_group_id]
+#   elasticache_subnet_group_name    = module.vpc.elasticache_subnet_group
+#   cluster_size                     = 1
+#   instance_type                    = "cache.t3.micro"
+#   engine_version                   = "7.0"
+#   family                           = "redis7"
+#   transit_encryption_enabled       = false
 
-  # Verify that we can safely change security groups (name changes forces new SG)
-  security_group_create_before_destroy = true
-  security_group_delete_timeout = "5m"
-  # This module creates the security group with all required permissions automatically. 
-  security_group_name                  = ["${var.redis_db_id}-cache"]
+#   # Verify that we can safely change security groups (name changes forces new SG)
+#   security_group_create_before_destroy = true
+#   security_group_delete_timeout = "5m"
+#   # This module creates the security group with all required permissions automatically. 
+#   security_group_name                  = ["${var.redis_db_id}-cache"]
 
-  context = module.this.context
-}
+#   context = module.this.context
+# }
 
 
-################################################################################
-# S3 bucket for API static and media content
-################################################################################
+# ################################################################################
+# # ECR for API image
+# ################################################################################
 
+
+# ################################################################################
+# # ALB
+# ################################################################################
+
+
+# ################################################################################
+# # TLS Certificate for ALB
+# ################################################################################
+
+
+# ################################################################################
+# # S3 bucket for API static and media content
+# ################################################################################
