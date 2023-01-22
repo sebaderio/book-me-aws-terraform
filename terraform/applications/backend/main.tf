@@ -320,6 +320,20 @@ module "ecs" {
   }
 }
 
+module "service_api" {
+  source = "./service-api"
+
+  vpc_id         = module.vpc.vpc_id
+  vpc_cidr_block = module.vpc.vpc_cidr_block
+  cluster_id     = module.ecs.cluster_id
+  task_image     = "crccheck/hello-world:latest"
+  name           = var.api_service_name
+  port           = 8000
+  cpu            = var.api_service_cpu
+  memory         = var.api_service_memory
+  subnets        = module.vpc.private_subnets
+}
+
 
 # ################################################################################
 # # S3 bucket for API static and media content

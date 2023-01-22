@@ -126,3 +126,18 @@ variable "ecs_cluster_id" {
   type    = string
   default = "ecs-cluster-book-me-prod"
 }
+
+variable "api_service_name" {
+  type    = string
+  default = "api-book-me-prod"
+}
+
+variable "api_service_cpu" {
+  type    = number
+  default = 256
+}
+
+variable "api_service_memory" {
+  type    = number
+  default = 512
+}
