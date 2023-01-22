@@ -64,14 +64,14 @@ variable "rds_db_id" {
 
 variable "rds_db_name" {
   type        = string
-  description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
   default     = "book_me_prod"
+  description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
 }
 
 variable "rds_db_username" {
   type        = string
-  description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
   default     = "book_me_admin"
+  description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
 }
 
 variable "rds_db_port" {
@@ -87,4 +87,42 @@ variable "rds_db_port" {
 variable "redis_db_id" {
   type    = string
   default = "redis-book-me-prod"
+}
+
+
+################################################################################
+# ALB
+################################################################################
+
+variable "alb_id" {
+  type    = string
+  default = "alb-book-me-prod"
+}
+
+variable "acm_domain_name" {
+  type    = string
+  default = "terraform.bookme.tk"
+}
+
+variable "route53_zone_id" {
+  type = string
+  # TODO Remove the default value
+  default     = "Z02587991HESUSK03JP5P"
+  description = "ID of the existing Route53 hosted zone."
+}
+
+variable "alb_api_target_group_stickiness_duration" {
+  type    = number
+  default = 60
+}
+
+
+
+################################################################################
+# ECS
+################################################################################
+
+variable "ecs_cluster_id" {
+  type    = string
+  default = "ecs-cluster-book-me-prod"
 }
