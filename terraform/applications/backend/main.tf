@@ -8,6 +8,8 @@
 # - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
 # - configure allowed hosts, csrf etc. for django api container
 # - configure health checks for django api container
+# - configure s3 bucket as a remote state
+# - refactor the entire configuration
 # - enjoy the journey
 
 provider "aws" {
@@ -290,6 +292,13 @@ module "alb" {
 
 
 ################################################################################
+# S3 bucket to store API static and media
+################################################################################
+
+# TODO
+
+
+################################################################################
 # ECS
 ################################################################################
 
@@ -341,8 +350,3 @@ module "service_api" {
   subnets             = module.vpc.private_subnets
   lb_target_group_arn = module.alb.target_group_arns[0]
 }
-
-
-# ################################################################################
-# # S3 bucket for API static and media content
-# ################################################################################
