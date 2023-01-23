@@ -46,3 +46,8 @@ variable "subnets" {
   type        = list(string)
   description = "Subnets in wich the ECS service can be created."
 }
+
+variable "lb_target_group_arn" {
+  type        = string
+  description = "ARN of the Load Balancer target group to associate with the ECS service."
+}

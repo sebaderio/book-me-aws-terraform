@@ -150,4 +150,9 @@ resource "aws_ecs_service" "app" {
     security_groups = [aws_security_group.fargate_task.id]
     subnets         = var.subnets
   }
+  load_balancer {
+    target_group_arn = var.lb_target_group_arn
+    container_name = var.name
+    container_port = var.port
+  }
 }

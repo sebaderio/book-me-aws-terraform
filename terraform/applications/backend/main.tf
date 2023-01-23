@@ -1,3 +1,12 @@
+# TODO
+# - implement a way to pass parameters and secrets to containers
+# - make django app working with new resources like s3, user session in redis
+# - make sure you follow security good practices
+# - Fix TLS certificate and domain, seems that it does not work now
+# - configure autoscaling of API service according to good practices, e.g CPU usage
+# - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically
+# - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
+# - enjoy the journey
 
 provider "aws" {
   region = var.region
@@ -320,21 +329,28 @@ module "ecs" {
   }
 }
 
+# TODO Add autoscaling policy based on the CPU usage
 module "service_api" {
   source = "./service-api"
 
-  vpc_id         = module.vpc.vpc_id
-  vpc_cidr_block = module.vpc.vpc_cidr_block
-  cluster_id     = module.ecs.cluster_id
-  task_image     = "crccheck/hello-world:latest"
-  name           = var.api_service_name
-  port           = 8000
-  cpu            = var.api_service_cpu
-  memory         = var.api_service_memory
-  subnets        = module.vpc.private_subnets
+  vpc_id              = module.vpc.vpc_id
+  vpc_cidr_block      = module.vpc.vpc_cidr_block
+  cluster_id          = module.ecs.cluster_id
+  task_image          = "crccheck/hello-world:latest"
+  name                = var.api_service_name
+  port                = 8000
+  cpu                 = var.api_service_cpu
+  memory              = var.api_service_memory
+  subnets             = module.vpc.private_subnets
+  lb_target_group_arn = module.alb.target_group_arns[0]
 }
 
 
 # ################################################################################
 # # S3 bucket for API static and media content
+# ################################################################################
+
+
+# ################################################################################
+# # ECR registry for API contanier docker images
 # ################################################################################
