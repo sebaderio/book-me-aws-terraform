@@ -195,158 +195,228 @@ module "vpc" {
 # }
 
 
-################################################################################
-# ALB
-################################################################################
+# ################################################################################
+# # ALB
+# ################################################################################
 
-module "alb_security_group" {
-  source  = "terraform-aws-modules/security-group/aws"
-  version = "~> 4.17.1"
+# module "alb_security_group" {
+#   source  = "terraform-aws-modules/security-group/aws"
+#   version = "~> 4.17.1"
 
-  name        = var.alb_id
-  description = "Security group for ALB"
-  vpc_id      = module.vpc.vpc_id
+#   name        = var.alb_id
+#   description = "Security group for ALB"
+#   vpc_id      = module.vpc.vpc_id
 
-  ingress_cidr_blocks = ["0.0.0.0/0"]
-  ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
-  egress_rules        = ["all-all"]
-}
+#   ingress_cidr_blocks = ["0.0.0.0/0"]
+#   ingress_rules       = ["http-80-tcp", "https-443-tcp", "all-icmp"]
+#   egress_rules        = ["all-all"]
+# }
 
-# When checking in the AWS console there is only one DNS record for both certs. It seems that when provisioning
-# Terraform requests one certificate for both domain names specified below. See the note in the official AWS docs.
-# With current setup the wildcard cert is redundant, but I left it to remember how such cases are handled.
-# https://docs.aws.amazon.com/acm/latest/userguide/acm-certificate.html#:~:text=a%20public%20certificate.-,wildcard%20names,-ACM%20allows%20you
-module "alb_acm" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "~> 4.3.1"
+# # When checking in the AWS console there is only one DNS record for both certs. It seems that when provisioning
+# # Terraform requests one certificate for both domain names specified below. See the note in the official AWS docs.
+# # With current setup the wildcard cert is redundant, but I left it to remember how such cases are handled.
+# # https://docs.aws.amazon.com/acm/latest/userguide/acm-certificate.html#:~:text=a%20public%20certificate.-,wildcard%20names,-ACM%20allows%20you
+# module "alb_acm" {
+#   source  = "terraform-aws-modules/acm/aws"
+#   version = "~> 4.3.1"
 
-  domain_name = var.acm_domain_name
-  zone_id     = var.route53_zone_id
-}
+#   domain_name = var.acm_domain_name
+#   zone_id     = var.route53_zone_id
+# }
 
-module "alb_wildcard_cert" {
-  source  = "terraform-aws-modules/acm/aws"
-  version = "~> 4.3.1"
+# module "alb_wildcard_cert" {
+#   source  = "terraform-aws-modules/acm/aws"
+#   version = "~> 4.3.1"
 
-  domain_name = "*.${var.acm_domain_name}"
-  zone_id     = var.route53_zone_id
-}
+#   domain_name = "*.${var.acm_domain_name}"
+#   zone_id     = var.route53_zone_id
+# }
 
-module "alb" {
-  source  = "terraform-aws-modules/alb/aws"
-  version = "~> 8.2.1"
+# module "alb" {
+#   source  = "terraform-aws-modules/alb/aws"
+#   version = "~> 8.2.1"
 
-  name = var.alb_id
+#   name = var.alb_id
 
-  vpc_id          = module.vpc.vpc_id
-  security_groups = [module.alb_security_group.security_group_id]
-  subnets         = module.vpc.public_subnets
+#   vpc_id          = module.vpc.vpc_id
+#   security_groups = [module.alb_security_group.security_group_id]
+#   subnets         = module.vpc.public_subnets
 
-  http_tcp_listeners = [
-    {
-      port        = 80
-      protocol    = "HTTP"
-      action_type = "redirect"
-      redirect = {
-        port        = "443"
-        protocol    = "HTTPS"
-        status_code = "HTTP_301"
-      }
-    }
-  ]
+#   http_tcp_listeners = [
+#     {
+#       port        = 80
+#       protocol    = "HTTP"
+#       action_type = "redirect"
+#       redirect = {
+#         port        = "443"
+#         protocol    = "HTTPS"
+#         status_code = "HTTP_301"
+#       }
+#     }
+#   ]
 
-  # Enabled sticky session to make websockets API working correctly.
-  # When having multiple target groups you should also configure stickiness on listeners level.
-  target_groups = [
-    {
-      name                 = "${var.alb_id}-tg"
-      backend_protocol     = "HTTP"
-      backend_port         = 8000
-      target_type          = "ip"
-      deregistration_delay = 90
-      stickiness = {
-        enabled         = true
-        cookie_duration = var.alb_api_target_group_stickiness_duration
-        type            = "lb_cookie"
-      }
-    }
-  ]
+#   # Enabled sticky session to make websockets API working correctly.
+#   # When having multiple target groups you should also configure stickiness on listeners level.
+#   target_groups = [
+#     {
+#       name                 = "${var.alb_id}-tg"
+#       backend_protocol     = "HTTP"
+#       backend_port         = 8000
+#       target_type          = "ip"
+#       deregistration_delay = 90
+#       stickiness = {
+#         enabled         = true
+#         cookie_duration = var.alb_api_target_group_stickiness_duration
+#         type            = "lb_cookie"
+#       }
+#     }
+#   ]
 
-  https_listeners = [
-    {
-      port               = 443
-      protocol           = "HTTPS"
-      certificate_arn    = module.alb_acm.acm_certificate_arn
-      target_group_index = 0
+#   https_listeners = [
+#     {
+#       port               = 443
+#       protocol           = "HTTPS"
+#       certificate_arn    = module.alb_acm.acm_certificate_arn
+#       target_group_index = 0
 
-    },
-  ]
+#     },
+#   ]
 
-  extra_ssl_certs = [
-    {
-      https_listener_index = 0
-      certificate_arn      = module.alb_wildcard_cert.acm_certificate_arn
-    }
-  ]
-}
+#   extra_ssl_certs = [
+#     {
+#       https_listener_index = 0
+#       certificate_arn      = module.alb_wildcard_cert.acm_certificate_arn
+#     }
+#   ]
+# }
 
 
 ################################################################################
 # S3 bucket to store API static and media
 ################################################################################
 
-# TODO
+data "aws_iam_policy_document" "static_media_bucket_policy" {
+  statement {
+    sid = "ListObjectsInBucketFromFargateTasks"
 
-
-################################################################################
-# ECS
-################################################################################
-
-module "ecs" {
-  source  = "terraform-aws-modules/ecs/aws"
-  version = "~> 4.1.2"
-
-  cluster_name = var.ecs_cluster_id
-
-  cluster_configuration = {
-    execute_command_configuration = {
-      logging = "OVERRIDE"
-      log_configuration = {
-        # You can set a simple string and ECS will create the CloudWatch log group for you
-        # or you can create the resource yourself to better manage retetion, tagging, etc.
-        # TODO Determine if the cloud watch group is created. How about permissions to CloudWatch?
-        cloud_watch_log_group_name = "/aws/ecs/${var.ecs_cluster_id}"
-      }
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
     }
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}",
+    ]
   }
 
-  fargate_capacity_providers = {
-    FARGATE = {
-      default_capacity_provider_strategy = {
-        weight = 50
-        base   = 1
-      }
+  statement {
+    sid = "FullPermissionOnBucketObjectForFargateTasks"
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
     }
-    FARGATE_SPOT = {
-      default_capacity_provider_strategy = {
-        weight = 50
-      }
+
+    actions = [
+      "s3:*Object",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}/*",
+    ]
+  }
+
+
+  statement {
+    sid = "GetBucketObjectForPublic"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
     }
+
+    actions = [
+      "s3:GetObject",
+    ]
+
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}/*",
+    ]
   }
 }
 
-# TODO Add autoscaling policy based on the CPU usage
-module "service_api" {
-  source = "./service-api"
+# TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
+module "static_media_s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
 
-  vpc_id              = module.vpc.vpc_id
-  vpc_cidr_block      = module.vpc.vpc_cidr_block
-  cluster_id          = module.ecs.cluster_id
-  task_image          = "crccheck/hello-world:latest"
-  name                = var.api_service_name
-  port                = 8000
-  cpu                 = var.api_service_cpu
-  memory              = var.api_service_memory
-  subnets             = module.vpc.private_subnets
-  lb_target_group_arn = module.alb.target_group_arns[0]
+  bucket = var.static_media_bucket_name
+
+  force_destroy = true
+
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.static_media_bucket_policy.json
 }
+
+
+################################################################################
+# VPC Endpoints
+################################################################################
+
+# It makes no sense to pay for NAT gateway when there is a way to not go out of VPC
+# TODO vpc endpoints - ecr, s3,
+
+
+# ################################################################################
+# # ECS
+# ################################################################################
+
+# module "ecs" {
+#   source  = "terraform-aws-modules/ecs/aws"
+#   version = "~> 4.1.2"
+
+#   cluster_name = var.ecs_cluster_id
+
+#   cluster_configuration = {
+#     execute_command_configuration = {
+#       logging = "OVERRIDE"
+#       log_configuration = {
+#         # You can set a simple string and ECS will create the CloudWatch log group for you
+#         # or you can create the resource yourself to better manage retetion, tagging, etc.
+#         # TODO Determine if the cloud watch group is created. How about permissions to CloudWatch?
+#         cloud_watch_log_group_name = "/aws/ecs/${var.ecs_cluster_id}"
+#       }
+#     }
+#   }
+
+#   fargate_capacity_providers = {
+#     FARGATE = {
+#       default_capacity_provider_strategy = {
+#         weight = 50
+#         base   = 1
+#       }
+#     }
+#     FARGATE_SPOT = {
+#       default_capacity_provider_strategy = {
+#         weight = 50
+#       }
+#     }
+#   }
+# }
+
+# # TODO Add autoscaling policy based on the CPU usage
+# module "service_api" {
+#   source = "./service-api"
+
+#   vpc_id              = module.vpc.vpc_id
+#   vpc_cidr_block      = module.vpc.vpc_cidr_block
+#   cluster_id          = module.ecs.cluster_id
+#   task_image          = var.api_task_image
+#   name                = var.api_service_name
+#   port                = 8000
+#   cpu                 = var.api_service_cpu
+#   memory              = var.api_service_memory
+#   subnets             = module.vpc.private_subnets
+#   lb_target_group_arn = module.alb.target_group_arns[0]
+# }

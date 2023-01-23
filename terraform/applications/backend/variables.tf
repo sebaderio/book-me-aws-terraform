@@ -117,6 +117,15 @@ variable "alb_api_target_group_stickiness_duration" {
 }
 
 
+################################################################################
+# S3 bucket to store API static and media
+################################################################################
+
+variable "static_media_bucket_name" {
+  type    = string
+  default = "book-me-prod-static-media"
+}
+
 
 ################################################################################
 # ECS
@@ -130,6 +139,12 @@ variable "ecs_cluster_id" {
 variable "api_service_name" {
   type    = string
   default = "api-book-me-prod"
+}
+
+variable "api_task_image" {
+  type = string
+  default = "crccheck/hello-world:latest"
+  description = "Ultimately it should be the task image stored in ECR repository."
 }
 
 variable "api_service_cpu" {
