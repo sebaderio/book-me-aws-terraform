@@ -6,6 +6,8 @@
 # - configure autoscaling of API service according to good practices, e.g CPU usage
 # - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically
 # - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
+# - configure allowed hosts, csrf etc. for django api container
+# - configure health checks for django api container
 # - enjoy the journey
 
 provider "aws" {
@@ -189,11 +191,6 @@ module "vpc" {
 #   allowed_security_groups = [module.vpc.default_security_group_id]
 #   ingress_cidr_blocks     = [module.vpc.vpc_cidr_block]
 # }
-
-
-################################################################################
-# ECR for API image
-################################################################################
 
 
 ################################################################################
