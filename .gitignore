@@ -49,4 +49,4 @@ env_vars-prod-sample
 persistent_data
 */tmp/*
 frontend/node_modules
-api/config
+api/service-config

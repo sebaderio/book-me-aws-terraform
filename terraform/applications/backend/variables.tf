@@ -180,7 +180,7 @@ variable "api_config_bucket_name" {
 
 variable "api_config_file_path" {
   type        = string
-  default     = "/config/api/production.env"
+  default     = "/service-config/api/production.env"
   description = "Path to the file with api service settings and secrets in the config s3 bucket."
   # TODO add validation -> min length 5 (/.env), starts with "/", ends with ".env"
 }

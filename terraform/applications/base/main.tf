@@ -43,7 +43,11 @@ module "config_s3_bucket" {
 
   bucket = var.config_bucket_name
 
-  force_destroy           = true
+  force_destroy = true
+  versioning = {
+    enabled = true
+  }
+
   block_public_acls       = true
   block_public_policy     = true
   ignore_public_acls      = true

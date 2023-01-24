@@ -291,73 +291,73 @@ module "alb" {
 }
 
 
-# ################################################################################
-# # S3 bucket to store API static and media
-# ################################################################################
+################################################################################
+# S3 bucket to store API static and media
+################################################################################
 
-# data "aws_iam_policy_document" "static_media_bucket_policy" {
-#   statement {
-#     sid = "ListObjectsInBucketFromFargateTasks"
+data "aws_iam_policy_document" "static_media_bucket_policy" {
+  statement {
+    sid = "ListObjectsInBucketFromFargateTasks"
 
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
-#     }
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+    }
 
-#     actions = [
-#       "s3:ListBucket",
-#     ]
+    actions = [
+      "s3:ListBucket",
+    ]
 
-#     resources = [
-#       "arn:aws:s3:::${var.static_media_bucket_name}",
-#     ]
-#   }
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}",
+    ]
+  }
 
-#   statement {
-#     sid = "FullPermissionOnBucketObjectForFargateTasks"
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
-#     }
+  statement {
+    sid = "FullPermissionOnBucketObjectForFargateTasks"
+    principals {
+      type        = "Service"
+      identifiers = ["ecs.amazonaws.com", "ecs-tasks.amazonaws.com"]
+    }
 
-#     actions = [
-#       "s3:*Object",
-#     ]
+    actions = [
+      "s3:*Object",
+    ]
 
-#     resources = [
-#       "arn:aws:s3:::${var.static_media_bucket_name}/*",
-#     ]
-#   }
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}/*",
+    ]
+  }
 
 
-#   statement {
-#     sid = "GetBucketObjectForPublic"
-#     principals {
-#       type        = "*"
-#       identifiers = ["*"]
-#     }
+  statement {
+    sid = "GetBucketObjectForPublic"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
 
-#     actions = [
-#       "s3:GetObject",
-#     ]
+    actions = [
+      "s3:GetObject",
+    ]
 
-#     resources = [
-#       "arn:aws:s3:::${var.static_media_bucket_name}/*",
-#     ]
-#   }
-# }
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}/*",
+    ]
+  }
+}
 
-# # TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
-# module "static_media_s3_bucket" {
-#   source = "terraform-aws-modules/s3-bucket/aws"
+# TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
+module "static_media_s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
 
-#   bucket = var.static_media_bucket_name
+  bucket = var.static_media_bucket_name
 
-#   force_destroy = true
+  force_destroy = true
 
-#   attach_policy = true
-#   policy        = data.aws_iam_policy_document.static_media_bucket_policy.json
-# }
+  attach_policy = true
+  policy        = data.aws_iam_policy_document.static_media_bucket_policy.json
+}
 
 
 ################################################################################
