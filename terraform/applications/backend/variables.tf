@@ -14,7 +14,7 @@ variable "region" {
 
 variable "vpc_name" {
   type    = string
-  default = "vpc-book-me-prod"
+  default = "book-me-prod-vpc"
 }
 
 variable "vpc_cidr" {
@@ -59,7 +59,7 @@ variable "rds_db_region" {
 
 variable "rds_db_id" {
   type    = string
-  default = "postgresql-book-me-prod"
+  default = "book-me-prod-postgresql"
 }
 
 variable "rds_db_name" {
@@ -86,7 +86,7 @@ variable "rds_db_port" {
 
 variable "redis_db_id" {
   type    = string
-  default = "redis-book-me-prod"
+  default = "book-me-prod-redis"
 }
 
 
@@ -96,7 +96,7 @@ variable "redis_db_id" {
 
 variable "alb_id" {
   type    = string
-  default = "alb-book-me-prod"
+  default = "book-me-prod-alb"
 }
 
 variable "acm_domain_name" {
@@ -143,18 +143,23 @@ variable "vpce_security_group_name" {
 
 variable "ecs_cluster_id" {
   type    = string
-  default = "ecs-cluster-book-me-prod"
+  default = "book-me-prod-ecs-cluster"
 }
 
 variable "api_service_name" {
   type    = string
-  default = "api-book-me-prod"
+  default = "book-me-prod-api"
 }
 
 variable "api_task_image" {
   type        = string
   default     = "crccheck/hello-world:latest"
   description = "Ultimately it should be the task image stored in ECR repository."
+}
+
+variable "api_task_cmd" {
+  type    = list(string)
+  default = ["sh", "-c", "daphne --bind 0.0.0.0 core.asgi:application && python manage.py runworker -v2"]
 }
 
 variable "api_service_cpu" {

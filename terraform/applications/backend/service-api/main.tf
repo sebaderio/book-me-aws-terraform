@@ -5,6 +5,7 @@ locals {
   container_definition = [{
     name        = var.name
     image       = var.task_image
+    command     = var.cmd
     cpu         = var.cpu
     memory      = var.memory
     networkMode = "awsvpc"
@@ -152,7 +153,7 @@ resource "aws_ecs_service" "app" {
   }
   load_balancer {
     target_group_arn = var.lb_target_group_arn
-    container_name = var.name
-    container_port = var.port
+    container_name   = var.name
+    container_port   = var.port
   }
 }

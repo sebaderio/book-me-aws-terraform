@@ -1,9 +1,9 @@
 variable "vpc_id" {
-  type        = string
+  type = string
 }
 
 variable "vpc_cidr_block" {
-  type        = string
+  type = string
 }
 
 variable "cluster_id" {
@@ -11,14 +11,19 @@ variable "cluster_id" {
   description = "The ECS cluster ID"
 }
 
+variable "name" {
+  type        = string
+  description = "The name of the ECS service to create."
+}
+
 variable "task_image" {
   type        = string
   description = "Name of the docker image publicly available in the DockerHub."
 }
 
-variable "name" {
-  type        = string
-  description = "The name of the ECS service to create."
+variable "cmd" {
+  type        = list(string)
+  description = "Command to run in the task."
 }
 
 variable "port" {
