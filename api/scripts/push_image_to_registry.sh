@@ -9,6 +9,7 @@ fi
 
 aws ecr get-login-password --region $1 | docker login --username AWS --password-stdin $2
 
+# This flag make it possible to skip building stages not required to build the specified target.
 DOCKER_BUILDKIT=1
 docker build -t $3 --target production ../.
 
