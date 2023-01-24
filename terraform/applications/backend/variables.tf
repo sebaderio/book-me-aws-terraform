@@ -128,6 +128,16 @@ variable "static_media_bucket_name" {
 
 
 ################################################################################
+# VPC Endpoints
+################################################################################
+
+variable "vpce_security_group_name" {
+  type    = string
+  default = "book-me-prod-vpce-sg"
+}
+
+
+################################################################################
 # ECS
 ################################################################################
 
@@ -142,8 +152,8 @@ variable "api_service_name" {
 }
 
 variable "api_task_image" {
-  type = string
-  default = "crccheck/hello-world:latest"
+  type        = string
+  default     = "crccheck/hello-world:latest"
   description = "Ultimately it should be the task image stored in ECR repository."
 }
 

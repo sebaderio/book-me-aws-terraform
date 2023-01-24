@@ -364,8 +364,61 @@ module "static_media_s3_bucket" {
 # VPC Endpoints
 ################################################################################
 
-# It makes no sense to pay for NAT gateway when there is a way to not go out of VPC
-# TODO vpc endpoints - ecr, s3,
+resource "aws_security_group" "vpc_endpoint" {
+  name   = var.vpce_security_group_name
+  vpc_id = module.vpc.vpc_id
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [module.vpc.vpc_cidr_block]
+  }
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = module.vpc.vpc_id
+  service_name      = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = module.vpc.private_route_table_ids
+  tags = {
+    Name        = "s3-endpoint"
+    Environment = "prod"
+  }
+}
+
+# VPC endpoints work out of the box when you have DNS Hostnames and DNS Resolution
+# enabled in the VPC. Also Enable DNS name option must be enabled in the VPC endpoint.
+# This option is enabled by default when creating VPC endpoints through Terraform like below.
+# VPC endpoints explanation: https://itnext.io/what-exactly-are-vpc-endpoints-and-why-they-need-real-inter-region-support-283a9987fe51.
+resource "aws_vpc_endpoint" "dkr" {
+  vpc_id              = module.vpc.vpc_id
+  private_dns_enabled = true
+  service_name        = "com.amazonaws.${var.region}.ecr.dkr"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  subnet_ids = module.vpc.private_subnets
+  tags = {
+    Name        = "dkr-endpoint"
+    Environment = "prod"
+  }
+}
+
+resource "aws_vpc_endpoint" "dkr_api" {
+  vpc_id              = module.vpc.vpc_id
+  private_dns_enabled = true
+  service_name        = "com.amazonaws.${var.region}.ecr.api"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  subnet_ids = module.vpc.private_subnets
+  tags = {
+    Name        = "dkr-api-endpoint"
+    Environment = "prod"
+  }
+}
 
 
 # ################################################################################
