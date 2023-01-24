@@ -16,6 +16,12 @@ locals {
         hostPort      = var.port
       }
     ]
+    environmentFiles = [
+      {
+        type  = "s3"
+        value = "arn:aws:s3:::${var.config_bucket_name}${var.config_file_path}"
+      }
+    ]
     logConfiguration = {
       logdriver = "awslogs"
       options = {
@@ -54,56 +60,64 @@ data "aws_iam_policy_document" "fargate_role_policy" {
   }
 }
 
+data "aws_iam_policy_document" "execution_policy" {
+  statement {
+    sid = "GeneralTaskExecutionRolePolicy"
+    actions = [
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:BatchGetImage",
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:GetAuthorizationToken",
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+
+  # Policies to read the config file
+  statement {
+    sid       = "FetchConfigFromFileTaskExecutionRolePolicy"
+    actions   = ["s3:getObject"]
+    resources = ["arn:aws:s3:::${var.config_bucket_name}${var.config_file_path}"]
+  }
+
+  statement {
+    sid       = "FindConfigFileTaskExecutionRolePolicy"
+    actions   = ["s3:GetBucketLocation"]
+    resources = ["arn:aws:s3:::${var.config_bucket_name}"]
+  }
+}
+
 resource "aws_iam_policy" "execution" {
   name   = "fargate_execution_policy"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-        "Effect": "Allow",
-        "Action": [
-            "ecr:GetDownloadUrlForLayer",
-            "ecr:BatchGetImage",
-            "ecr:BatchCheckLayerAvailability",
-            "ecr:GetAuthorizationToken",
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-        ],
-        "Resource": "*"
-    }
-  ]
+  policy = data.aws_iam_policy_document.execution_policy.json
 }
-EOF
+
+data "aws_iam_policy_document" "task_policy" {
+  statement {
+    sid = "ManageLogsTaskRolePolicy"
+    actions = [
+      "logs:CreateLogGroup",
+      "logs:CreateLogStream",
+      "logs:PutLogEvents"
+    ]
+    resources = ["*"]
+  }
+
+  statement {
+    sid = "ManageServicesTaskRolePolicy"
+    actions = [
+      "servicediscovery:ListServices",
+      "servicediscovery:ListInstances"
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_policy" "task" {
   name   = "fargate_task_policy"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-        "Effect": "Allow",
-        "Action": [
-            "logs:CreateLogGroup",
-            "logs:CreateLogStream",
-            "logs:PutLogEvents"
-        ],
-        "Resource": "*"
-    },
-    {
-        "Effect": "Allow",
-        "Action": [
-            "servicediscovery:ListServices",
-            "servicediscovery:ListInstances"
-        ],
-        "Resource": "*"
-    }
-  ]
-}
-EOF
+  policy = data.aws_iam_policy_document.task_policy.json
 }
 
 resource "aws_iam_role" "execution" {

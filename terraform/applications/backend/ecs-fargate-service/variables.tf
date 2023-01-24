@@ -56,3 +56,14 @@ variable "lb_target_group_arn" {
   type        = string
   description = "ARN of the Load Balancer target group to associate with the ECS service."
 }
+
+variable "config_bucket_name" {
+  type        = string
+  description = "Name of the s3 bucket where file with service settings and secrets resides."
+}
+
+variable "config_file_path" {
+  type        = string
+  description = "Path to the file with settings and secrets in the config s3 bucket."
+  # TODO add validation -> min length 5 (/.env), starts with "/", ends with ".env"
+}

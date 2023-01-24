@@ -33,6 +33,19 @@ module "ecr" {
 }
 
 
-# ################################################################################
-# # S3 bucket and DynamoDB table to store state remotely
-# ################################################################################
+################################################################################
+# S3 bucket to store terraform state, configuration and secrets
+################################################################################
+
+# TODO Check/enable encryption at rest and in transit?
+module "config_s3_bucket" {
+  source = "terraform-aws-modules/s3-bucket/aws"
+
+  bucket = var.config_bucket_name
+
+  force_destroy           = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}

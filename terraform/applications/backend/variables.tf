@@ -171,3 +171,16 @@ variable "api_service_memory" {
   type    = number
   default = 512
 }
+
+variable "api_config_bucket_name" {
+  type        = string
+  default     = "book-me-config"
+  description = "Name of the s3 bucket where file with api service settings and secrets resides."
+}
+
+variable "api_config_file_path" {
+  type        = string
+  default     = "/config/api/production.env"
+  description = "Path to the file with api service settings and secrets in the config s3 bucket."
+  # TODO add validation -> min length 5 (/.env), starts with "/", ends with ".env"
+}

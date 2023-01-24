@@ -460,7 +460,7 @@ module "ecs" {
 
 # TODO Add autoscaling policy based on the CPU usage
 module "service_api" {
-  source = "./service-api"
+  source = "./ecs-fargate-service"
 
   vpc_id              = module.vpc.vpc_id
   vpc_cidr_block      = module.vpc.vpc_cidr_block
@@ -473,4 +473,6 @@ module "service_api" {
   memory              = var.api_service_memory
   subnets             = module.vpc.private_subnets
   lb_target_group_arn = module.alb.target_group_arns[0]
+  config_bucket_name  = var.api_config_bucket_name
+  config_file_path    = var.api_config_file_path
 }
