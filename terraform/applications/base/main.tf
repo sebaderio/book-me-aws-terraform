@@ -375,36 +375,61 @@ module "static_media_s3_bucket" {
 # EC2 Bastion
 ################################################################################
 
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name = "name"
+    # It needs to be Amazon 2 linux instance. Amazon 1 instances do not have
+    # ec2-instance-connect installed, but it is needed to connect to the instance
+    # from the AWS console.
+    values = ["amzn2-ami-kernel-5.10-hvm-*-x86_64-gp2"]
+  }
+}
+
+module "bastion_security_group" {
+  source  = "terraform-aws-modules/security-group/aws"
+  version = "~> 4.17.1"
+
+  name        = var.ec2_bastion_name
+  description = "Security group for EC2 bastion"
+  vpc_id      = module.vpc.vpc_id
+
+  ingress_cidr_blocks = ["0.0.0.0/0"]
+  ingress_rules       = ["ssh-tcp"]
+  egress_rules        = ["all-all"]
+}
+
+locals {
+  user_data = <<-EOT
+  #!/bin/bash
+  yum update -y
+  yum install -y git amazon-linux-extras
+  amazon-linux-extras install postgresql14
+  EOT
+}
+
 module "ec2_bastion" {
-  source = "terraform-aws-modules/ec2-instance/aws"
-  version = "~> 1.3.0"
+  source  = "terraform-aws-modules/ec2-instance/aws"
+  version = "~> 4.3.0"
 
   name = var.ec2_bastion_name
 
-  ami                         = data.aws_ami.amazon_linux.id
-  instance_type               = var.ec_2_bastion_instance_type # "c5.xlarge" # used to set core count below
-  availability_zone           = element(module.vpc.azs, 0)
-  subnet_id                   = element(module.vpc.public_subnets, 0)
-  vpc_security_group_ids      = [module.security_group.security_group_id]
-  placement_group             = aws_placement_group.web.id
-  associate_public_ip_address = false
-  disable_api_stop            = false
+  ami               = data.aws_ami.amazon_linux.id
+  instance_type     = var.ec2_bastion_instance_type
+  availability_zone = element(module.vpc.azs, 0)
+  subnet_id         = element(module.vpc.public_subnets, 0)
 
-  create_iam_instance_profile = true
-  iam_role_description        = "IAM role for EC2 instance"
-  iam_role_policies = {
-    AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
-  }
-
-  # only one of these can be enabled at a time
-  hibernation = true
-  # enclave_options_enabled = true
+  vpc_security_group_ids      = [module.bastion_security_group.security_group_id]
+  associate_public_ip_address = true
 
   user_data_base64            = base64encode(local.user_data)
   user_data_replace_on_change = true
 
-  cpu_core_count       = 2 # default 4
-  cpu_threads_per_core = 1 # default 2
+  create_iam_instance_profile = true
+  iam_role_description        = "IAM role for EC2 bastion instance"
+  iam_role_policies           = {}
 
-  enable_volume_tags = false
+  disable_api_stop = false
 }

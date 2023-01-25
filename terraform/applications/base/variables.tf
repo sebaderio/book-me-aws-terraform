@@ -130,3 +130,18 @@ variable "static_media_bucket_name" {
   type    = string
   default = "book-me-prod-static-media"
 }
+
+
+################################################################################
+# EC2 Bastion
+################################################################################
+
+variable "ec2_bastion_name" {
+  type    = string
+  default = "book-me-prod-bastion"
+}
+
+variable "ec2_bastion_instance_type" {
+  type    = string
+  default = "t2.micro"
+}

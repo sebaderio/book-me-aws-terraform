@@ -105,3 +105,12 @@ output "config_s3_bucket_arn" {
 output "static_media_s3_bucket_arn" {
   value = module.static_media_s3_bucket.s3_bucket_arn
 }
+
+
+################################################################################
+# EC2 Bastion
+################################################################################
+
+output "bastion_public_ip" {
+  value = module.ec2_bastion.public_ip
+}
