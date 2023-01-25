@@ -4,7 +4,7 @@ set -euxo pipefail
 
 if [[ $# -ne 3 ]]; then
     echo "Illegal number of parameters."
-    echo "Example usage: ./push_image_to_registry.sh eu-central-1 705130529207.dkr.ecr.eu-central-1.amazonaws.com book-me-prod-api"
+    echo "Example usage: ./push_image_to_registry.sh eu-central-1 705130529207.dkr.ecr.eu-central-1.amazonaws.com book-me-prod-backend"
 fi
 
 aws ecr get-login-password --region $1 | docker login --username AWS --password-stdin $2
