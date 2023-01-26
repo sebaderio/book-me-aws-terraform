@@ -30,6 +30,11 @@ locals {
         "awslogs-stream-prefix" = "stdout"
       }
     }
+    # Optional configuration to reduce the impact of ECS exec on long running ECS tasks.
+    # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-exec.html
+    linuxParameters = {
+      initProcessEnabled = true
+    }
   }]
 }
 
@@ -115,16 +120,19 @@ data "aws_iam_policy_document" "task_policy" {
   }
 
   # Permissions for ECS exec.
-  # https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
-  statement {
-    sid = "AllowToRunCommandsWithECSExec"
-    actions = [
-      "ssmmessages:CreateControlChannel",
-      "ssmmessages:CreateDataChannel",
-      "ssmmessages:OpenControlChannel",
-      "ssmmessages:OpenDataChannel"
-    ]
-    resources = ["*"]
+  dynamic "statement" {
+    for_each = var.enable_execute_command ? [1] : []
+
+    content {
+      sid = "AllowToRunCommandsWithECSExec"
+      actions = [
+        "ssmmessages:CreateControlChannel",
+        "ssmmessages:CreateDataChannel",
+        "ssmmessages:OpenControlChannel",
+        "ssmmessages:OpenDataChannel"
+      ]
+      resources = ["*"]
+    }
   }
 }
 

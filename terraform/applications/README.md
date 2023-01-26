@@ -18,12 +18,28 @@
    5. `GRANT ALL PRIVILEGES ON DATABASE book_me_prod TO book_me_prod_api;`
    6. NOTE: `GRANT ALL PRIVILEGES` looks mighty, but it is not as powerful as it looks like. Reference [HERE](https://www.postgresql.org/docs/current/ddl-priv.html). Investigation if it makes sense to grant more strict privileges can a part of the security improvement process.
 8. NOTE: Ultimately, steps 3-7 above should be automated with a script.
-9. Update api service config in `<repo root path>/api/service-config/api/production.env` with output values. URLs to db and redis for sure. Check other values too.
-10. Push api service config to the s3 bucket `<repo root path>/api/scripts/push_config_file_to_bucket.sh`.
-11. Push backend app docker image to the ECR repository `<repo root path>/api/scripts/push_image_to_registry.sh`.
+9. Update api service config in `/api/service-config/api/production.env` with output values. URLs to db and redis for sure. Check other values too.
+10. Push api service config to the s3 bucket `/api/scripts/push_config_file_to_bucket.sh`.
+11. Push backend app docker image to the ECR repository `/api/scripts/push_image_to_registry.sh`.
 12. Go to `backend` folder and provision resources. You may need to specify values for required variables and override default values.
-13. Connect to the ec2 bastion instance through the EC2 Instance Connect in AWS Console.
-14. Connect to the TBD
+13. Connect to the ECS Fargate task running Django based API.
+    1. When running ECS tasks on ec2 instances we can simply connect to the instance and run `docker exec -it`, but in case of ECS Fargate tasks it is more complicated. There is a ECS exec feature serving this purpose, but it requires additional setup. Before this feature was released, it was a hell to just get into container running on ECS Fargate.
+    2. Useful resources, also for troubleshooting :) [(1)](https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/)[(2)](https://aws.amazon.com/premiumsupport/knowledge-center/ecs-error-execute-command/)[(3)](https://www.simplethread.com/aws-ecs-exec-on-ecs-fargate-with-terraform/).
+    3. In the third article author suggests to have a dedicated ECS task definition and run a dedicated ECS task for the time of managing the production environment with ECS exec. Thanks to this only the ECS exec task has a broader set of permissions. It is like having a separate ECS task for running db migrations.
+    4. Example command to run:
+
+    ```bash
+
+    aws ecs execute-command  \
+    --region eu-central-1 \
+    --cluster book-me-prod-ecs-cluster \
+    --task 7d55ba94db46429e9ff1550efa233ea1 \
+    --container book-me-prod-api \
+    --command "/bin/bash" \
+    --interactive
+
+14. Follow steps described in the **Initial setup of Django based API on production** section of the main README of this project.
+15. TBD
 
 ### TODO
 

@@ -141,19 +141,20 @@ module "ecs" {
 module "service_api" {
   source = "./ecs-fargate-service"
 
-  vpc_id              = var.vpc_id
-  vpc_cidr_block      = var.vpc_cidr_block
-  cluster_id          = module.ecs.cluster_id
-  task_image          = var.api_task_image
-  cmd                 = var.api_task_cmd
-  name                = var.api_service_name
-  port                = 8000
-  cpu                 = var.api_service_cpu
-  memory              = var.api_service_memory
-  subnets             = var.vpc_private_subnets
-  lb_target_group_arn = module.alb.target_group_arns[0]
-  config_bucket_name  = var.api_config_bucket_name
-  config_file_path    = var.api_config_file_path
+  vpc_id                 = var.vpc_id
+  vpc_cidr_block         = var.vpc_cidr_block
+  cluster_id             = module.ecs.cluster_id
+  task_image             = var.api_task_image
+  cmd                    = var.api_task_cmd
+  name                   = var.api_service_name
+  port                   = 8000
+  cpu                    = var.api_service_cpu
+  memory                 = var.api_service_memory
+  enable_execute_command = true
+  subnets                = var.vpc_private_subnets
+  lb_target_group_arn    = module.alb.target_group_arns[0]
+  config_bucket_name     = var.api_config_bucket_name
+  config_file_path       = var.api_config_file_path
 
   # It is needed because ALB module can create the target group and it is available as output,
   # but terraform throws an error here, because the target group is not associated with LB yet.
