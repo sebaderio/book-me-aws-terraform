@@ -47,6 +47,12 @@ variable "desired_count" {
   description = "Desired number of instances of the task definition."
 }
 
+variable "enable_execute_command" {
+  type        = bool
+  default     = true
+  description = "Allow to run commands invoked outside of the container using ECS exec."
+}
+
 variable "subnets" {
   type        = list(string)
   description = "Subnets in wich the ECS service can be created."

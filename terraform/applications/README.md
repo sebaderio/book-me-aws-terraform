@@ -27,8 +27,7 @@
 
 ### TODO
 
-- build base stack, add db user for app, update service-config, push config and docker image to aws, build backend stack
-- make django app working with new resources like s3, user session in redis, current status: no db user, password authentication failed for user "bookme_user"
+- make django app working with new resources like s3, user session in redis
 - make sure you follow security good practices
 - Fix TLS certificate and domain, seems that it does not work now
 - configure autoscaling of API service according to good practices, e.g CPU usage

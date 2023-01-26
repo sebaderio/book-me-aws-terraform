@@ -113,6 +113,19 @@ data "aws_iam_policy_document" "task_policy" {
     ]
     resources = ["*"]
   }
+
+  # Permissions for ECS exec.
+  # https://aws.amazon.com/blogs/containers/new-using-amazon-ecs-exec-access-your-containers-fargate-ec2/
+  statement {
+    sid = "AllowToRunCommandsWithECSExec"
+    actions = [
+      "ssmmessages:CreateControlChannel",
+      "ssmmessages:CreateDataChannel",
+      "ssmmessages:OpenControlChannel",
+      "ssmmessages:OpenDataChannel"
+    ]
+    resources = ["*"]
+  }
 }
 
 resource "aws_iam_policy" "task" {
@@ -156,11 +169,12 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 resource "aws_ecs_service" "app" {
-  name            = var.name
-  cluster         = var.cluster_id
-  task_definition = aws_ecs_task_definition.app.arn
-  desired_count   = var.desired_count
-  launch_type     = "FARGATE"
+  name                   = var.name
+  cluster                = var.cluster_id
+  task_definition        = aws_ecs_task_definition.app.arn
+  desired_count          = var.desired_count
+  launch_type            = "FARGATE"
+  enable_execute_command = var.enable_execute_command
   network_configuration {
     security_groups = [aws_security_group.fargate_task.id]
     subnets         = var.subnets

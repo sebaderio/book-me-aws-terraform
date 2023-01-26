@@ -75,8 +75,8 @@ module "alb" {
       health_check = {
         # There are more parameters to be configured, but not specified here because default values
         # should be fine. For more details check the official Terraform docs for aws_lb_target_group resource.
-        path                = "/auth/ping" # works, but returns 301 when running Django with DEBUG=true, maybe `/auth/ping/?format=json` would be better
-        matcher             = "200-399"
+        path    = "/auth/ping" # works, but returns 301 when running Django with DEBUG=true, maybe `/auth/ping/?format=json` would be better
+        matcher = "200-399"
       }
     }
   ]
