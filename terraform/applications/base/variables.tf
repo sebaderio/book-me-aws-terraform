@@ -72,15 +72,9 @@ variable "rds_db_id" {
   default = "book-me-prod-postgresql"
 }
 
-variable "rds_db_name" {
+variable "rds_master_username" {
   type        = string
-  default     = "book_me_prod"
-  description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
-}
-
-variable "rds_db_username" {
-  type        = string
-  default     = "book_me_admin"
+  default     = "book_me_prod_admin"
   description = "It is a good practice to stick to lowercase letters, numeric digits and underscores."
 }
 

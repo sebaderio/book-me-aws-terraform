@@ -156,8 +156,7 @@ module "db" {
   # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
   # "Error creating DB Instance: InvalidParameterValue: MasterUsername
   # user cannot be used as it is a reserved word used by the engine"
-  db_name  = var.rds_db_name
-  username = var.rds_db_username
+  username = var.rds_master_username
   # By default random password is generated for the master user.
   port = var.rds_db_port
 
