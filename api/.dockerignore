@@ -17,5 +17,7 @@ coverage.xml
 *.log
 .git
 .dockerignore
+Dockerfile
 tmp
 docker-compose.*
+service-config

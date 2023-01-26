@@ -33,7 +33,7 @@
     aws ecs execute-command  \
     --region eu-central-1 \
     --cluster book-me-prod-ecs-cluster \
-    --task 7d55ba94db46429e9ff1550efa233ea1 \
+    --task 03d11345e63f4cba8fb94e557a9ab0d6 \
     --container book-me-prod-api \
     --command "/bin/bash" \
     --interactive
@@ -53,5 +53,5 @@
 - configure health checks for django api container
 - configure s3 bucket as a remote state
 - refactor the entire configuration
-- add examples of service-config files
+- add examples of service-config files, move service-config folder to the root folder of the repo
 - enjoy the journey
