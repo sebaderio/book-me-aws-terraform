@@ -2,7 +2,7 @@ data "aws_region" "current" {}
 
 locals {
   cw_log_group = "/aws/ecs/${var.name}"
-  container_definition = [{
+  container_definitions = [{
     name        = var.name
     image       = var.task_image
     command     = var.cmd
@@ -150,7 +150,7 @@ resource "aws_ecs_task_definition" "app" {
   cpu                      = var.cpu
   memory                   = var.memory
   requires_compatibilities = ["FARGATE"]
-  container_definitions    = jsonencode(local.container_definition)
+  container_definitions    = jsonencode(local.container_definitions)
   execution_role_arn       = aws_iam_role.execution.arn
   task_role_arn            = aws_iam_role.task.arn
 }
