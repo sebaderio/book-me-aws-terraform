@@ -18,7 +18,7 @@
    5. `GRANT ALL PRIVILEGES ON DATABASE book_me_prod TO book_me_prod_api;`
    6. NOTE: `GRANT ALL PRIVILEGES` looks mighty, but it is not as powerful as it looks like. Reference [HERE](https://www.postgresql.org/docs/current/ddl-priv.html). Investigation if it makes sense to grant more strict privileges can a part of the security improvement process.
 8. NOTE: Ultimately, steps 3-7 above should be automated with a script.
-9. Update api service config in `/api/service-config/api/production.env` with output values. URLs to db and redis for sure. Check other values too.
+9. Update api service config in `/service-config/api/production.env` with output values. URLs to db and redis for sure. Check other values too.
 10. Push api service config to the s3 bucket `/api/scripts/push_config_file_to_bucket.sh`.
 11. Push backend app docker image to the ECR repository `/api/scripts/push_image_to_registry.sh`.
 12. Go to `backend` folder and provision resources. You may need to specify values for required variables and override default values.
@@ -43,7 +43,7 @@
 
 ### TODO
 
-- make django app working with s3 as static and media storage
+- make django app working with s3 as static and media storage, TESTING
 - when deployed on prod, django shouts that CORS and CSRF config values should start from https:// or http:// or something.com
 - configure allowed hosts, csrf etc. for django api container
 - make sure you follow security good practices
