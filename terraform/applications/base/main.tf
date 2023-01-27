@@ -371,6 +371,41 @@ module "static_media_s3_bucket" {
 
 
 ################################################################################
+# IAM user to make Django app working with S3 as static and media storage
+################################################################################
+
+# After this operation there will be sensitive information in the `.tfstate` file giving full access
+# to the static and media s3 bucket!
+# This section may fail when running terraform commands as IAM user without permission to manage IAM users.
+# Alternatively, you can just go to the AWS console and create IAM user with permissions specified below.
+
+resource "aws_iam_user" "django_app" {
+  name = "django-app"
+}
+
+resource "aws_iam_access_key" "django_app" {
+  user = aws_iam_user.django_app.name
+}
+
+data "aws_iam_policy_document" "django_app_static_media_s3_bucket_policy" {
+  statement {
+    sid     = "FullAccessToStaticMediaBucketForDjangoApp"
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}",
+      "arn:aws:s3:::${var.static_media_bucket_name}/*"
+    ]
+  }
+}
+
+resource "aws_iam_user_policy" "django_app" {
+  name   = "django_app_policy"
+  user   = aws_iam_user.django_app.name
+  policy = data.aws_iam_policy_document.django_app_static_media_s3_bucket_policy.json
+}
+
+
+################################################################################
 # EC2 Bastion
 ################################################################################
 
