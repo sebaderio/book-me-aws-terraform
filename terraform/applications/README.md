@@ -43,15 +43,17 @@
 
 ### TODO
 
-- make django app working with new resources like s3, user session in redis
+- make django app working with s3 as static and media storage
+- when deployed on prod, django shouts that CORS and CSRF config values should start from https:// or http:// or something.com
+- configure allowed hosts, csrf etc. for django api container
 - make sure you follow security good practices
 - Fix TLS certificate and domain, seems that it does not work now
-- configure autoscaling of API service according to good practices, e.g CPU usage
 - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically
 - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
-- configure allowed hosts, csrf etc. for django api container
-- configure health checks for django api container
 - configure s3 bucket as a remote state
 - refactor the entire configuration
+- configure autoscaling of API service according to good practices, e.g CPU usage
+- user session in redis, redis as broker, user session should work until we start scaling out the API container :)
+- add password protection to redis, connection config in django app needs to be adjusted
 - add examples of service-config files, move service-config folder to the root folder of the repo
 - enjoy the journey
