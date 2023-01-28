@@ -1,101 +1,101 @@
-# ################################################################################
-# # VPC
-# ################################################################################
+################################################################################
+# VPC
+################################################################################
 
-# output "vpc_id" {
-#   value = module.vpc.vpc_id
-# }
+output "vpc_id" {
+  value = module.vpc.vpc_id
+}
 
-# output "vpc_cidr_block" {
-#   value = module.vpc.vpc_cidr_block
-# }
+output "vpc_cidr_block" {
+  value = module.vpc.vpc_cidr_block
+}
 
-# output "vpc_public_subnets" {
-#   value = module.vpc.public_subnets
-# }
+output "vpc_public_subnets" {
+  value = module.vpc.public_subnets
+}
 
-# output "vpc_private_subnets" {
-#   value = module.vpc.private_subnets
-# }
+output "vpc_private_subnets" {
+  value = module.vpc.private_subnets
+}
 
-# output "vpc_database_subnets" {
-#   value = module.vpc.database_subnets
-# }
+output "vpc_database_subnets" {
+  value = module.vpc.database_subnets
+}
 
-# output "vpc_elasticache_subnets" {
-#   value = module.vpc.elasticache_subnets
-# }
-
-
-# ################################################################################
-# # Postgres RDS
-# ################################################################################
-
-# output "db_address" {
-#   value = module.db.db_instance_address
-# }
-
-# output "db_endpoint" {
-#   value = module.db.db_instance_endpoint
-# }
-
-# output "db_port" {
-#   value = module.db.db_instance_port
-# }
-
-# output "db_name" {
-#   value = module.db.db_instance_name
-# }
-
-# output "db_master_username" {
-#   value     = module.db.db_instance_username
-#   sensitive = true
-# }
-
-# output "db_master_password" {
-#   value     = module.db.db_instance_password
-#   sensitive = true
-# }
+output "vpc_elasticache_subnets" {
+  value = module.vpc.elasticache_subnets
+}
 
 
-# ################################################################################
-# # Elasticache Redis
-# ################################################################################
+################################################################################
+# Postgres RDS
+################################################################################
 
-# output "redis_primary_endpoint_address" {
-#   value = module.redis.elasticache_replication_group_primary_endpoint_address
-# }
+output "db_address" {
+  value = module.db.db_instance_address
+}
 
-# output "redis_reader_endpoint_address" {
-#   value = module.redis.elasticache_replication_group_reader_endpoint_address
-# }
+output "db_endpoint" {
+  value = module.db.db_instance_endpoint
+}
 
-# output "redis_port" {
-#   value = module.redis.elasticache_port
-# }
+output "db_port" {
+  value = module.db.db_instance_port
+}
 
-# output "redis_auth_token" {
-#   value     = module.redis.elasticache_auth_token
-#   sensitive = true
-# }
+output "db_name" {
+  value = module.db.db_instance_name
+}
+
+output "db_master_username" {
+  value     = module.db.db_instance_username
+  sensitive = true
+}
+
+output "db_master_password" {
+  value     = module.db.db_instance_password
+  sensitive = true
+}
 
 
-# ################################################################################
-# # ECR for backend image
-# ################################################################################
+################################################################################
+# Elasticache Redis
+################################################################################
 
-# output "backend_ecr_repository_url" {
-#   value = module.backend_ecr.repository_url
-# }
+output "redis_primary_endpoint_address" {
+  value = module.redis.elasticache_replication_group_primary_endpoint_address
+}
+
+output "redis_reader_endpoint_address" {
+  value = module.redis.elasticache_replication_group_reader_endpoint_address
+}
+
+output "redis_port" {
+  value = module.redis.elasticache_port
+}
+
+output "redis_auth_token" {
+  value     = module.redis.elasticache_auth_token
+  sensitive = true
+}
 
 
-# ################################################################################
-# # S3 bucket to store terraform state, configuration and secrets
-# ################################################################################
+################################################################################
+# ECR for backend image
+################################################################################
 
-# output "config_s3_bucket_arn" {
-#   value = module.config_s3_bucket.s3_bucket_arn
-# }
+output "backend_ecr_repository_url" {
+  value = module.backend_ecr.repository_url
+}
+
+
+################################################################################
+# S3 bucket to store terraform state, configuration and secrets
+################################################################################
+
+output "config_s3_bucket_arn" {
+  value = module.config_s3_bucket.s3_bucket_arn
+}
 
 
 ################################################################################
@@ -112,20 +112,20 @@ output "static_media_s3_bucket_arn" {
 ################################################################################
 
 output "django_app_user_access_key_id" {
-  value = aws_iam_access_key.django_app.id
+  value     = aws_iam_access_key.django_app.id
   sensitive = true
 }
 
 output "django_app_user_secret_access_key" {
-  value = aws_iam_access_key.django_app.secret
+  value     = aws_iam_access_key.django_app.secret
   sensitive = true
 }
 
 
-# ################################################################################
-# # EC2 Bastion
-# ################################################################################
+################################################################################
+# EC2 Bastion
+################################################################################
 
-# output "bastion_public_ip" {
-#   value = module.ec2_bastion.public_ip
-# }
+output "bastion_public_ip" {
+  value = module.ec2_bastion.public_ip
+}

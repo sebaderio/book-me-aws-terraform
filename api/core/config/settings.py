@@ -187,8 +187,8 @@ CORS_ALLOW_CREDENTIALS = (
 CORS_ORIGIN_ALLOW_ALL = (
     utils.get_env_value('DJANGO_CORS_ORIGIN_ALLOW_ALL', 'false').lower() == 'true'
 )
-CORS_ALLOWED_ORIGINS = utils.get_env_value('DJANGO_CORS_ALLOWED_ORIGINS').split()
-CSRF_TRUSTED_ORIGINS = utils.get_env_value('DJANGO_CSRF_TRUSTED_ORIGINS').split()
+CORS_ALLOWED_ORIGINS = utils.get_env_value('DJANGO_CORS_ALLOWED_ORIGINS', '').split()
+CSRF_TRUSTED_ORIGINS = utils.get_env_value('DJANGO_CSRF_TRUSTED_ORIGINS', '').split()
 
 
 CELERY_LOG_LEVEL = utils.get_env_value('CELERY_LOG_LEVEL', 'WARNING')

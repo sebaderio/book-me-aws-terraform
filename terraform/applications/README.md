@@ -33,7 +33,7 @@
     aws ecs execute-command  \
     --region eu-central-1 \
     --cluster book-me-prod-ecs-cluster \
-    --task 03d11345e63f4cba8fb94e557a9ab0d6 \
+    --task 23a36a89ea4f4ce2b5ac3b3fe01c5b3d \
     --container book-me-prod-api \
     --command "/bin/bash" \
     --interactive
@@ -43,7 +43,6 @@
 
 ### TODO
 
-- make sure you follow security good practices
 - Fix TLS certificate and domain, seems that it does not work now
 - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically
 - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
@@ -51,6 +50,5 @@
 - refactor the entire configuration
 - configure autoscaling of API service according to good practices, e.g CPU usage
 - user session in redis, redis as broker, user session should work until we start scaling out the API container :)
-- add password protection to redis, connection config in django app needs to be adjusted
-- add examples of service-config files, move service-config folder to the root folder of the repo
+- fix "this backend does not support absolute paths" when saving image to the s3 probable, see ss taken 2013-01-28
 - enjoy the journey

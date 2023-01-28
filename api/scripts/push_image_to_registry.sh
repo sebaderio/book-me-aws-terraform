@@ -24,4 +24,5 @@ docker logout $2
 # 1. https://stackoverflow.com/questions/58695853/docker-image-tagging-in-ecr
 #    You can add multiple tags to the image and push all to the ECR repository. AWS CLI, ECR or whatever
 #    is smart enough to not push the same image twice. Thanks to this you can have `latest` tag
-#    and separate, `commit hash` tag to run the specific version of the pushed image.
+#    and separate, `commit hash` tag to run the specific version of the pushed image. Make sure that image
+#    tag mutability is enabled. Otherwise you may get an error when pushing another image with `latest` tag.
