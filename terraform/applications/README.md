@@ -43,9 +43,6 @@
 
 ### TODO
 
-- make django app working with s3 as static and media storage, TESTING
-- when deployed on prod, django shouts that CORS and CSRF config values should start from https:// or http:// or something.com
-- configure allowed hosts, csrf etc. for django api container
 - make sure you follow security good practices
 - Fix TLS certificate and domain, seems that it does not work now
 - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically

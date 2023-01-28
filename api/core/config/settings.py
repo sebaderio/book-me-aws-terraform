@@ -28,6 +28,7 @@ ALLOWED_HOSTS = utils.get_env_value('DJANGO_ALLOWED_HOSTS').split()
 
 # NOTE: psycopg2-binary dependency must be installed to make django app working with postgres.
 INSTALLED_APPS = [
+    'corsheaders',
     'admin_interface',
     'colorfield',
     'django.contrib.admin',
@@ -42,7 +43,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'storages',
     'channels',
-    'corsheaders',
     'authentication',
     'barber',
     'customer',
@@ -171,7 +171,7 @@ if utils.get_env_value('TARGET_ENV').lower() == 'production':
     MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
     DEFAULT_FILE_STORAGE = 'core.storage_backends.MediaStorage'
 elif utils.get_env_value('TARGET_ENV').lower() == 'development':
-    # Explanation https://stackoverflow.com/questions/37716200/whats-the-difference-between-static-url-and-static-root-in-django
+    # Well explained https://stackoverflow.com/questions/37716200/whats-the-difference-between-static-url-and-static-root-in-django
     STATIC_URL = '/static/'
     STATIC_ROOT = '/var/lib/static'
     MEDIA_URL = '/media/'
@@ -180,6 +180,7 @@ else:
     raise NotImplemented
 
 
+# Well explained https://www.stackhawk.com/blog/django-cors-guide/
 CORS_ALLOW_CREDENTIALS = (
     utils.get_env_value('DJANGO_CORS_ALLOW_CREDENTIALS', 'false').lower() == 'true'
 )
