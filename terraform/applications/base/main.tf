@@ -255,7 +255,7 @@ module "redis" {
 
 module "backend_ecr" {
   source = "terraform-aws-modules/ecr/aws"
-  # TODO add version = "~> 1.5.1"
+  version = "~> 1.5.1"
 
   repository_name = var.backend_repository_name
 
@@ -291,7 +291,7 @@ module "backend_ecr" {
 # TODO Check/enable encryption at rest and in transit?
 module "config_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
-  # TODO add version = "~> 3.6.1"
+  version = "~> 3.6.1"
 
   bucket = var.config_bucket_name
 
@@ -366,7 +366,7 @@ data "aws_iam_policy_document" "static_media_bucket_policy" {
 # TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
 module "static_media_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
-  # TODO add version = "~> 3.6.1"
+  version = "~> 3.6.1"
 
   bucket = var.static_media_bucket_name
 

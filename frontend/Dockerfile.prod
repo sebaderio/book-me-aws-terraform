@@ -13,12 +13,9 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY package.json package-lock.json ./
 RUN npm ci --silent
 
-# copy app files, dev version shares a volume
+# copy app files
 COPY . ./
-
-# build app
-RUN npm run build
 
 # When running the container you can specify the volume path mapping for the /app/build
 # folder to take the generated, static app out from the container.
-CMD ["echo", "'Client app built successfully and saved to /app/build'"]
+CMD ["npm", "run", "build"]
