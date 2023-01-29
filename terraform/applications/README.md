@@ -43,12 +43,12 @@
 
 ### TODO
 
-- Fix TLS certificate and domain, seems that it does not work now
+- make client app available to clients, add public bucket, there is website option, build a bundle, push to bucket, add dns record pointing to the bucket
 - configure CI/CD with github actions, build docker image, push to registry, maybe trigger deployment automatically
 - Improve logs configuration, add logs saving to relevant services, maybe save in s3 instead of CW
 - configure s3 bucket as a remote state
 - refactor the entire configuration
 - configure autoscaling of API service according to good practices, e.g CPU usage
 - user session in redis, redis as broker, user session should work until we start scaling out the API container :)
-- fix "this backend does not support absolute paths" when saving image to the s3 probable, see ss taken 2013-01-28
+- fix "this backend does not support absolute paths" when saving image to the s3, see ss taken 2013-01-28
 - enjoy the journey

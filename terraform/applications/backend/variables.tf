@@ -34,7 +34,7 @@ variable "alb_id" {
 
 variable "acm_domain_name" {
   type    = string
-  default = "terraform.bookme.tk"
+  default = "apiv2.bookme.tk"
 }
 
 variable "route53_zone_id" {

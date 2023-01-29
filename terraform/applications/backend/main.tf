@@ -99,6 +99,14 @@ module "alb" {
   ]
 }
 
+resource "aws_route53_record" "alb" {
+  zone_id = var.route53_zone_id
+  name    = var.acm_domain_name
+  type    = "CNAME"
+  ttl     = 300
+  records = [module.alb.lb_dns_name]
+}
+
 
 ################################################################################
 # ECS
