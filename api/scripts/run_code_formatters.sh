@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-set -e;
+set -euo pipefail
 
 PATHS_TO_LINT="$*"
 
