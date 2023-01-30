@@ -52,12 +52,13 @@
 
 Currently this project can be described as a good foundation for a production-grade solution. There are a few things to do.
 
-1. Configure CI/CD to automatically build, push and deploy the newest version of the app after merge.
-2. Configure autoscaling of API service according to good practices e.g based on CPU usage.
-3. Review and improve logging. Consider saving logs in S3 instead of CW.
-4. Configure S3 bucket as a remote state for terraform configuration. Remember that there are sensitive values in tfstate files.
-5. Configure encryption at rest and in transit for config_s3_bucket.
-6. Check the entire codebase and consider what else should be done.
+1. Reformat Terraform configuration to have one reusable component/resource per file instead of one, big main.tf.
+2. Configure CI/CD to automatically build, push and deploy the newest version of the app after merge.
+3. Configure autoscaling of API service according to good practices e.g based on CPU usage.
+4. Review and improve logging. Consider saving logs in S3 instead of CW.
+5. Configure S3 bucket as a remote state for terraform configuration. Remember that there are sensitive values in tfstate files.
+6. Configure encryption at rest and in transit for config_s3_bucket.
+7. Check the entire codebase and consider what else should be done.
 
 ## Application specific issues
 
