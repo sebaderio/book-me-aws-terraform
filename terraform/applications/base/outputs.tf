@@ -108,6 +108,21 @@ output "static_media_s3_bucket_arn" {
 
 
 ################################################################################
+# IAM user to make Django app working with S3 as static and media storage
+################################################################################
+
+output "django_app_user_access_key_id" {
+  value     = aws_iam_access_key.django_app.id
+  sensitive = true
+}
+
+output "django_app_user_secret_access_key" {
+  value     = aws_iam_access_key.django_app.secret
+  sensitive = true
+}
+
+
+################################################################################
 # EC2 Bastion
 ################################################################################
 

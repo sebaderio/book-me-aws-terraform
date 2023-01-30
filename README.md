@@ -26,7 +26,7 @@ There is a dedicated README in the `/terraform/applications` folder.
 1. Run `sudo yum install -y git` to install git.
 2. Pull the app repo from remote. Use ssh based URL.
 3. Run `install_deps.sh` script. You might be prompted to type sudo password a few times.
-4. Configure env vars for each container. Copy/paste the correct `env_vars/*-sample` file to the same directory, remove `-sample` suffix from the file name and specify correct values for variables in the file.
+4. Configure settings for each container. Add `development.env` file to each subdirectory in `/service-config/*`. Configure settings based on descriptions in dedicated README files.
     1. Article explaining CORS configuration in Django [LINK](https://www.stackhawk.com/blog/django-cors-guide/#what-is-cors).
     2. The best would be to take a look at values that were specified for these variables on some server running in the past.
     3. Django app is configured to use Sendgrid as a mailing provider. Sendgrid offers free 100 emails/day and you can create custom email templates.
@@ -41,8 +41,8 @@ There is a dedicated README in the `/terraform/applications` folder.
        3. In case you don't have the admin account created yet you can create a superuser/admin account by running `make django cmd=createsuperuser`.
        4. List of available themes [here](https://github.com/fabiocaccamo/django-admin-interface#optional-themes).
     5. Adjust texts and logos in Django Admin Panel to follow the context of the BookMe app. Go to Django Admin Panel -> Home -> Admin Interface -> Themes -> USWDS and change:
-       1. Logo to the one located in `frontend/public/media/bookme_200_white.png`.
-       2. Favicon to the one located in `frontend/public/media/bookme_200_white.png`.
+       1. Logo to the one located in `/frontend/public/media/bookme_200_white.png`.
+       2. Favicon to the one located in `/frontend/public/media/bookme_200_white.png`.
        3. Title to `BookMe`.
 
 ## Code formatting and linting

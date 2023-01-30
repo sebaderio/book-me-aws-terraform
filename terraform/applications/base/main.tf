@@ -1,7 +1,10 @@
+################################################################################
+# General
+################################################################################
+
 provider "aws" {
   region = var.region
 }
-
 
 data "aws_caller_identity" "current" {}
 
@@ -216,6 +219,11 @@ module "db_security_group" {
 # Elasticache Redis
 ################################################################################
 
+resource "random_password" "redis_auth_token" {
+  length           = 30
+  special          = false
+}
+
 module "redis" {
   source  = "umotif-public/elasticache-redis/aws"
   version = "~> 3.2.0"
@@ -233,9 +241,9 @@ module "redis" {
   apply_immediately          = true
   automatic_failover_enabled = false
 
-  # TODO add auth_token authentication
-  at_rest_encryption_enabled = false
-  transit_encryption_enabled = false
+  auth_token                 = random_password.redis_auth_token.result
+  at_rest_encryption_enabled = true
+  transit_encryption_enabled = true
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.elasticache_subnets
@@ -250,13 +258,15 @@ module "redis" {
 
 module "backend_ecr" {
   source = "terraform-aws-modules/ecr/aws"
-  # TODO add version = "~> 1.5.1"
+  version = "~> 1.5.1"
 
   repository_name = var.backend_repository_name
 
   # Only these users/roles can push images to the ECR repository. 
   repository_read_write_access_arns = [data.aws_caller_identity.current.arn]
   repository_force_delete           = true
+  # Metability is needed when pushing the image with the same tag each time.
+  repository_image_tag_mutability = "MUTABLE"
   repository_lifecycle_policy = jsonencode({
     rules = [
       {
@@ -281,10 +291,10 @@ module "backend_ecr" {
 # S3 bucket to store terraform state, configuration and secrets
 ################################################################################
 
-# TODO Check/enable encryption at rest and in transit?
+# TODO Enable encryption at rest and in transit
 module "config_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
-  # TODO add version = "~> 3.6.1"
+  version = "~> 3.6.1"
 
   bucket = var.config_bucket_name
 
@@ -356,10 +366,9 @@ data "aws_iam_policy_document" "static_media_bucket_policy" {
   }
 }
 
-# TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
 module "static_media_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
-  # TODO add version = "~> 3.6.1"
+  version = "~> 3.6.1"
 
   bucket = var.static_media_bucket_name
 
@@ -367,6 +376,41 @@ module "static_media_s3_bucket" {
 
   attach_policy = true
   policy        = data.aws_iam_policy_document.static_media_bucket_policy.json
+}
+
+
+################################################################################
+# IAM user to make Django app working with S3 as static and media storage
+################################################################################
+
+# After this operation there will be sensitive information in the `.tfstate` file giving full access
+# to the static and media s3 bucket!
+# This section may fail when running terraform commands as IAM user without permission to manage IAM users.
+# Alternatively, you can just go to the AWS console and create IAM user with permissions specified below.
+
+resource "aws_iam_user" "django_app" {
+  name = "django-app"
+}
+
+resource "aws_iam_access_key" "django_app" {
+  user = aws_iam_user.django_app.name
+}
+
+data "aws_iam_policy_document" "django_app_static_media_s3_bucket_policy" {
+  statement {
+    sid     = "FullAccessToStaticMediaBucketForDjangoApp"
+    actions = ["s3:*"]
+    resources = [
+      "arn:aws:s3:::${var.static_media_bucket_name}",
+      "arn:aws:s3:::${var.static_media_bucket_name}/*"
+    ]
+  }
+}
+
+resource "aws_iam_user_policy" "django_app" {
+  name   = "django_app_policy"
+  user   = aws_iam_user.django_app.name
+  policy = data.aws_iam_policy_document.django_app_static_media_s3_bucket_policy.json
 }
 
 

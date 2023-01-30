@@ -1,4 +1,14 @@
 ################################################################################
+# General
+################################################################################
+
+variable "region" {
+  type    = string
+  default = "eu-central-1"
+}
+
+
+################################################################################
 # VPC
 ################################################################################
 
@@ -34,12 +44,11 @@ variable "alb_id" {
 
 variable "acm_domain_name" {
   type    = string
-  default = "terraform.bookme.tk"
+  default = "apiv2.bookme.tk"
 }
 
 variable "route53_zone_id" {
   type = string
-  # TODO Remove the default value
   default     = "Z02587991HESUSK03JP5P"
   description = "ID of the existing Route53 hosted zone."
 }

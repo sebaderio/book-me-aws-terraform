@@ -1,4 +1,13 @@
 ################################################################################
+# General
+################################################################################
+
+provider "aws" {
+  region = var.region
+}
+
+
+################################################################################
 # ALB
 ################################################################################
 
@@ -99,6 +108,14 @@ module "alb" {
   ]
 }
 
+resource "aws_route53_record" "alb" {
+  zone_id = var.route53_zone_id
+  name    = var.acm_domain_name
+  type    = "CNAME"
+  ttl     = 300
+  records = [module.alb.lb_dns_name]
+}
+
 
 ################################################################################
 # ECS
@@ -114,9 +131,6 @@ module "ecs" {
     execute_command_configuration = {
       logging = "OVERRIDE"
       log_configuration = {
-        # You can set a simple string and ECS will create the CloudWatch log group for you
-        # or you can create the resource yourself to better manage retetion, tagging, etc.
-        # TODO Determine if the cloud watch group is created. How about permissions to CloudWatch?
         cloud_watch_log_group_name = "/aws/ecs/${var.ecs_cluster_id}"
       }
     }

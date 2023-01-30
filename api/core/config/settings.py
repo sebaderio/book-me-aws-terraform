@@ -28,6 +28,7 @@ ALLOWED_HOSTS = utils.get_env_value('DJANGO_ALLOWED_HOSTS').split()
 
 # NOTE: psycopg2-binary dependency must be installed to make django app working with postgres.
 INSTALLED_APPS = [
+    'corsheaders',
     'admin_interface',
     'colorfield',
     'django.contrib.admin',
@@ -40,8 +41,8 @@ INSTALLED_APPS = [
     'django_prometheus',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'storages',
     'channels',
-    'corsheaders',
     'authentication',
     'barber',
     'customer',
@@ -89,17 +90,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django_prometheus.db.backends.postgresql',
         'NAME': utils.get_env_value('POSTGRES_DB'),
-        'HOST': utils.get_env_value('POSTGRES_HOST', 'db'),
+        'HOST': utils.get_env_value('POSTGRES_HOST'),
         'USER': utils.get_env_value('POSTGRES_USER'),
         'PASSWORD': utils.get_env_value('POSTGRES_PASSWORD'),
-        'PORT': int(utils.get_env_value('POSTGRES_PORT', '5432')),
+        'PORT': int(utils.get_env_value('POSTGRES_PORT')),
     }
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # NOTE: Remember to override AUTH_USER_MODEL when you want to use a custom User model.
 AUTH_USER_MODEL = 'authentication.User'
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'core.validators.PasswordLengthValidator',
@@ -131,26 +133,21 @@ SIMPLE_JWT = {
 }
 
 
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
+
+
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [utils.get_env_value('CELERY_BROKER_URL')],
+            'hosts': [utils.get_env_value('BROKER_URL')],
         },
     },
 }
 
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # NOTE: Needed only when using django-admin-interface extension with django version >= 3.0
@@ -160,27 +157,42 @@ SILENCED_SYSTEM_CHECKS = ['security.W019']
 
 ROOT_URLCONF = 'core.urls'
 
-MEDIA_URL = utils.get_env_value('DJANGO_MEDIA_URL')
-MEDIA_ROOT = '/var/lib/media'
 
-STATIC_URL = utils.get_env_value('DJANGO_STATIC_URL')
-STATIC_ROOT = '/var/lib/static'
+if utils.get_env_value('TARGET_ENV').lower() == 'production':
+    AWS_S3_REGION_NAME=utils.get_env_value('AWS_S3_REGION_NAME')
+    AWS_S3_ACCESS_KEY_ID = utils.get_env_value('AWS_S3_ACCESS_KEY_ID')
+    AWS_S3_SECRET_ACCESS_KEY = utils.get_env_value('AWS_S3_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = utils.get_env_value('AWS_S3_STORAGE_BUCKET_NAME')
+    AWS_S3_CUSTOM_DOMAIN = utils.get_env_value('AWS_S3_CUSTOM_DOMAIN', f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com')
+    # URL suffixes after the domain name must be compliant with the `location`
+    # parameter configured in the storage class.
+    STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/static/'
+    STATICFILES_STORAGE = 'core.storage_backends.StaticStorage'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+    DEFAULT_FILE_STORAGE = 'core.storage_backends.MediaStorage'
+elif utils.get_env_value('TARGET_ENV').lower() == 'development':
+    # Well explained https://stackoverflow.com/questions/37716200/whats-the-difference-between-static-url-and-static-root-in-django
+    STATIC_URL = '/static/'
+    STATIC_ROOT = '/var/lib/static'
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = '/var/lib/media'
+else:
+    raise NotImplemented
 
 
+# Well explained https://www.stackhawk.com/blog/django-cors-guide/
 CORS_ALLOW_CREDENTIALS = (
     utils.get_env_value('DJANGO_CORS_ALLOW_CREDENTIALS', 'false').lower() == 'true'
 )
 CORS_ORIGIN_ALLOW_ALL = (
     utils.get_env_value('DJANGO_CORS_ORIGIN_ALLOW_ALL', 'false').lower() == 'true'
 )
-CORS_ALLOWED_ORIGINS = utils.get_env_value('DJANGO_CORS_ALLOWED_ORIGINS').split()
-CSRF_TRUSTED_ORIGINS = utils.get_env_value('DJANGO_CSRF_TRUSTED_ORIGINS').split()
+CORS_ALLOWED_ORIGINS = utils.get_env_value('DJANGO_CORS_ALLOWED_ORIGINS', '').split()
+CSRF_TRUSTED_ORIGINS = utils.get_env_value('DJANGO_CSRF_TRUSTED_ORIGINS', '').split()
 
 
 CELERY_LOG_LEVEL = utils.get_env_value('CELERY_LOG_LEVEL', 'WARNING')
-CELERY_BROKER_URL = utils.get_env_value('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = utils.get_env_value('CELERY_RESULT_BACKEND')
-CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BROKER_URL = utils.get_env_value('BROKER_URL')
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 

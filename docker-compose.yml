@@ -11,7 +11,7 @@ services:
     depends_on:
       - celery
     env_file:
-      - env_vars/.env_api
+      - service-config/api/development.env
     ports:
       - 8000:8000
     restart: 'no'
@@ -29,7 +29,7 @@ services:
     depends_on:
       - api
     env_file:
-      - env_vars/.env_frontend
+      - service-config/frontend/development.env
     ports:
       - 3000:3000
     restart: always
@@ -41,7 +41,7 @@ services:
 
   db:
     env_file:
-      - env_vars/.env_db
+      - service-config/db/development.env
     image: postgres:14.5
     ports:
       - 5432:5432
@@ -58,7 +58,7 @@ services:
       - db
       - redis
     env_file:
-      - env_vars/.env_api
+      - service-config/api/development.env
     restart: 'no'
     volumes:
       - ./api:/app
@@ -69,3 +69,8 @@ services:
   redis:
     image: redis:6.2-buster
     restart: always
+
+
+# `env_file` parameter makes it possible to pass env vars to the container,
+# but you cannot use env vars in docker-compose file itself. e.g `${CELERY_LOG_LEVEL}`.
+# Alternatively, you can specify env vars in `.env` file.
