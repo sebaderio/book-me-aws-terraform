@@ -1,0 +1,76 @@
+# Parameters under each service should be sorted alphabetically.
+
+version: '3.9'
+
+services:
+  api:
+    build: 
+      context: ./api
+      target: development
+    command: sh -c "daphne --access-log /var/log/api/daphne/access.log --bind 0.0.0.0 core.asgi:application && python manage.py runworker -v2"
+    depends_on:
+      - celery
+    env_file:
+      - service-config/api/development.env
+    ports:
+      - 8000:8000
+    restart: 'no'
+    volumes:
+      - ./api:/app
+      - ./persistent_data/log/api/daphne:/var/log/api/daphne
+      - ./persistent_data/log/api/django:/var/log/api/django
+      - ./persistent_data/media:/var/lib/media
+      - ./persistent_data/static:/var/lib/static
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    depends_on:
+      - api
+    env_file:
+      - service-config/frontend/development.env
+    ports:
+      - 3000:3000
+    restart: always
+    volumes:
+      - /app/node_modules # hack to not overwrite node_modules in container
+      - ./frontend:/app
+      - ./persistent_data/media:/var/lib/media
+      - ./persistent_data/static:/var/lib/static
+
+  db:
+    env_file:
+      - service-config/db/development.env
+    image: postgres:14.5
+    ports:
+      - 5432:5432
+    restart: always
+    volumes:
+      - ./persistent_data/pg_data:/var/lib/postgresql/data
+
+  celery:
+    build: 
+      context: ./api
+      target: development
+    command: celery --app tasks worker --loglevel INFO
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - service-config/api/development.env
+    restart: 'no'
+    volumes:
+      - ./api:/app
+      - ./persistent_data/log/api/celery:/var/log/api/celery
+      - ./persistent_data/media:/var/lib/media
+      - ./persistent_data/static:/var/lib/static
+
+  redis:
+    image: redis:6.2-buster
+    restart: always
+
+
+# `env_file` parameter makes it possible to pass env vars to the container,
+# but you cannot use env vars in docker-compose file itself. e.g `${CELERY_LOG_LEVEL}`.
+# Alternatively, you can specify env vars in `.env` file.

@@ -1,0 +1,5 @@
+# Settings to configure
+
+POSTGRES_DB=postgres database name  
+POSTGRES_PASSWORD=postgres database password  
+POSTGRES_USER=postgres database user  

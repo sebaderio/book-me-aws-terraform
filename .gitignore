@@ -41,11 +41,7 @@ pip-wheel-metadata
 /poetry.toml
 api_rest/poetry.lock
 
-env_vars/*
-!env_vars/*-sample
-!env_vars/README.md
-env_vars-dev-sample
-env_vars-prod-sample
 persistent_data
 */tmp/*
 frontend/node_modules
+service-config/**/*.env
