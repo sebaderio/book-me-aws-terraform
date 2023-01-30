@@ -291,7 +291,7 @@ module "backend_ecr" {
 # S3 bucket to store terraform state, configuration and secrets
 ################################################################################
 
-# TODO Check/enable encryption at rest and in transit?
+# TODO Enable encryption at rest and in transit
 module "config_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 3.6.1"
@@ -366,7 +366,6 @@ data "aws_iam_policy_document" "static_media_bucket_policy" {
   }
 }
 
-# TODO Confirm if bucket policies are strict enough. Implicit deny rule should work fine...
 module "static_media_s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
   version = "~> 3.6.1"

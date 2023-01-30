@@ -1,1 +1,1 @@
-# Terraform configuration for hosting client app in AWS S3 bucket
+# Terraform configuration for hosting React client app in AWS S3 bucket

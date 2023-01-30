@@ -8,8 +8,7 @@ variable "client_app_bucket_name" {
 }
 
 variable "route53_zone_id" {
-  type = string
-  # TODO Remove the default value
+  type        = string
   default     = "Z02587991HESUSK03JP5P"
   description = "ID of the existing Route53 hosted zone."
 }

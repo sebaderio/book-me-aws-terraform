@@ -41,8 +41,8 @@ There is a dedicated README in the `/terraform/applications` folder.
        3. In case you don't have the admin account created yet you can create a superuser/admin account by running `make django cmd=createsuperuser`.
        4. List of available themes [here](https://github.com/fabiocaccamo/django-admin-interface#optional-themes).
     5. Adjust texts and logos in Django Admin Panel to follow the context of the BookMe app. Go to Django Admin Panel -> Home -> Admin Interface -> Themes -> USWDS and change:
-       1. Logo to the one located in `frontend/public/media/bookme_200_white.png`.
-       2. Favicon to the one located in `frontend/public/media/bookme_200_white.png`.
+       1. Logo to the one located in `/frontend/public/media/bookme_200_white.png`.
+       2. Favicon to the one located in `/frontend/public/media/bookme_200_white.png`.
        3. Title to `BookMe`.
 
 ## Code formatting and linting

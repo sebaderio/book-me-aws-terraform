@@ -131,9 +131,6 @@ module "ecs" {
     execute_command_configuration = {
       logging = "OVERRIDE"
       log_configuration = {
-        # You can set a simple string and ECS will create the CloudWatch log group for you
-        # or you can create the resource yourself to better manage retetion, tagging, etc.
-        # TODO Determine if the cloud watch group is created. How about permissions to CloudWatch?
         cloud_watch_log_group_name = "/aws/ecs/${var.ecs_cluster_id}"
       }
     }

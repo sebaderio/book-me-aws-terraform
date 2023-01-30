@@ -57,9 +57,8 @@ module "client_app_s3_bucket" {
 
   website = {
     index_document = "index.html"
-    # TODO mention this in README.
     # Easy, hacky way to make react-router work correctly. error_document should be set to 50x.html.
-    # This solution affects the SEO in a really bad way.
+    # This solution affects the SEO really badly.
     # There is a better solution that requires s3 bucket redirection configuration and small code changes.
     # https://stackoverflow.com/questions/51218979/react-router-doesnt-work-in-aws-s3-bucket
     # https://via.studio/journal/hosting-a-reactjs-app-with-routing-on-aws-s3
@@ -123,9 +122,9 @@ module "client_app_cloudfront_distribution" {
     # After push of the new version of the app to the s3 bucket, you should create CloudFront distribution
     # invalidation to force CloudFront to fetch the newest version of the app on all edge locations immediately.
     # You can e.g configure CloudWatch event that creates invalidation each time when there is a push to the bucket.
-    default_ttl = 86400 # 1 day
-    min_ttl = 3600 # 1 hour
-    max_ttl = 172800 # 2 days
+    default_ttl = 86400  # 1 day
+    min_ttl     = 3600   # 1 hour
+    max_ttl     = 172800 # 2 days
   }
 }
 
