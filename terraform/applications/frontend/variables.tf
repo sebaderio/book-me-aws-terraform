@@ -1,5 +1,5 @@
 ################################################################################
-# S3 bucket to host React client app
+# S3 bucket with CloudFront distribution to host React client app
 ################################################################################
 
 variable "client_app_bucket_name" {
