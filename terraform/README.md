@@ -1,5 +1,9 @@
 # Terraform configuration to provision the entire stack on AWS
 
+## Architecture diagram
+
+![aws-architecture](./diagrams/aws-architecture.png)
+
 ## How to provision
 
 1. Download and configure aws cli on your machine. You need a user for executing terraform commands and performing operations specified in bash scripts.

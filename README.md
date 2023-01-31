@@ -4,7 +4,7 @@ App for matching hairdressers with potential clients. Backend in Django + Django
 
 ## Deployment AWS + Terraform
 
-There is a dedicated README in the `/terraform/applications` folder.
+There is a dedicated [README](./terraform/README.md) in the folder with Terraform configuration.
 
 ## Initial setup of Django based API on production
 
