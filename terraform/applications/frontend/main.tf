@@ -25,6 +25,8 @@ provider "aws" {
 # *Of course people found some workarounds, but...
 # There is a lot of content discussing the topic in the web. Google it if you are interested.
 
+# TODO Determine if it is possible to block public access to the bucket when serving content
+#      through CloudFront distribution. If yes, update the policy.
 data "aws_iam_policy_document" "client_app_bucket_policy" {
   statement {
     sid = "GetBucketObjectForPublic"

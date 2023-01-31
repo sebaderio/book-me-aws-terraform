@@ -108,6 +108,8 @@ module "alb" {
   ]
 }
 
+# TODO It would be better to use alias record instead of CNAME.
+# https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html
 resource "aws_route53_record" "alb" {
   zone_id = var.route53_zone_id
   name    = var.acm_domain_name
